@@ -1,9 +1,5 @@
 import React from 'react';
-import { DashboardTemplate } from './templates/DashboardTemplate';
-import { SectionTable } from './components/organisms/SectionTable';
-import { SummaryCard } from './components/organisms/SummaryCard';
-import { DebtList } from './components/organisms/DebtList';
-import { ExportCard } from './components/organisms/ExportCard';
+import { DashboardContainer } from './containers/DashboardContainer';
 import { SectionDTO, SummaryDTO, DebtCardDTO } from './dtos/dashboard.dto';
 
 // Mock Data
@@ -83,21 +79,10 @@ export default function DashboardPage() {
   console.log('STRING VARIABLE: ', 'Rendering Dashboard Page with Dynamic Sections');
 
   return (
-    <DashboardTemplate 
-      sections={
-        <>
-          {sectionsData.map(section => (
-            <SectionTable key={section.id} section={section} />
-          ))}
-        </>
-      }
-      sidebar={
-        <>
-          <SummaryCard summary={summaryData} />
-          <DebtList debts={debtsData} />
-          <ExportCard />
-        </>
-      }
+    <DashboardContainer 
+      sectionsData={sectionsData}
+      summary={summaryData}
+      debts={debtsData}
     />
   );
 }
