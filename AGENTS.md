@@ -68,11 +68,25 @@ export class SectionDTO implements SectionInterface {
   id: string;
   title: string;
   icon: string;
-  type: 'simple_list' | 'summary_list';
   total?: number;
   items: SectionItemDTO[];
   action?: {
     label: string;
   };
+}
+```
+### Types, Constants and Enums implementations
+- All types, constants and enums should be declared in their respective (types, consts or enums) folder.
+- Types should follow the `PascalCase` naming convention finished with `Type`.
+- Constants should follow the `UPPER_SNAKE_CASE` naming convention.
+- If constant is a object, nested values should follow the `UPPER_SNAKE_CASE` naming convention.
+- Enums should follow the `PascalCase` naming convention finished with `Enum`.
+
+Sample of type (same way for consts and enums):
+```typescript
+export type SectionType = 'simple_list' | 'summary_list';
+
+export class SectionDTO implements SectionInterface {
+  type: SectionType;
 }
 ```

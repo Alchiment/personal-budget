@@ -2,8 +2,8 @@ import React from 'react';
 import { Card } from '@/app/components/atoms/Card';
 import { SectionHeader } from '@/app/components/molecules/SectionHeader';
 import { DebtCardDTO } from '../../dtos/dashboard.dto';
-import { formatCurrency } from '@/lib/format';
-import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/app/lib/format';
+import { cn } from '@/app/lib/utils';
 
 interface DebtListProps {
   debts: DebtCardDTO[];

@@ -1,21 +1,20 @@
-export interface MovementDTO {
+export interface SectionItemDTO {
   id: string;
   name: string;
   amount: number;
-  type: 'income' | 'expense';
+  variant?: 'income' | 'expense' | 'neutral' | 'default';
 }
 
-export interface ExpenseDTO {
+export interface SectionDTO {
   id: string;
-  name: string;
-  amount: number;
-}
-
-export interface ExpenseCategoryDTO {
   title: string;
   icon: string;
-  total: number;
-  items: ExpenseDTO[];
+  type: 'simple_list' | 'summary_list';
+  total?: number;
+  items: SectionItemDTO[];
+  action?: {
+    label: string;
+  };
 }
 
 export interface DebtItemDTO {

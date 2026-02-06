@@ -3,7 +3,7 @@ import { Card } from '@/app/components/atoms/Card';
 import { Icon } from '@/app/components/atoms/Icon';
 import { SectionHeader } from '@/app/components/molecules/SectionHeader';
 import { SummaryDTO } from '../../dtos/dashboard.dto';
-import { formatCurrency } from '@/lib/format';
+import { formatCurrency } from '@/app/lib/format';
 
 interface SummaryCardProps {
   summary: SummaryDTO;

@@ -1,40 +1,51 @@
+import React from 'react';
 import { DashboardTemplate } from './templates/DashboardTemplate';
-import { MovementsTable } from './components/organisms/MovementsTable';
-import { ExpensesTable } from './components/organisms/ExpensesTable';
+import { SectionTable } from './components/organisms/SectionTable';
 import { SummaryCard } from './components/organisms/SummaryCard';
 import { DebtList } from './components/organisms/DebtList';
 import { ExportCard } from './components/organisms/ExportCard';
-import { MovementDTO, ExpenseCategoryDTO, SummaryDTO, DebtCardDTO } from './dtos/dashboard.dto';
+import { SectionDTO, SummaryDTO, DebtCardDTO } from './dtos/dashboard.dto';
 
-// Mock Data matching the HTML/Screenshot
-const movementsData: MovementDTO[] = [
-  { id: '1', name: 'Salario', amount: 5000000, type: 'income' },
-  { id: '2', name: 'Credito Libranza', amount: -765000, type: 'expense' },
-  { id: '3', name: 'Pago Tercero', amount: 500000, type: 'income' },
+// Mock Data
+const sectionsData: SectionDTO[] = [
+  {
+    id: 'movements',
+    title: 'MOVIMIENTOS / INGRESOS',
+    icon: 'trending_up',
+    type: 'simple_list',
+    action: { label: 'Agregar' },
+    items: [
+      { id: '1', name: 'Salario', amount: 8059000, variant: 'income' },
+      { id: '2', name: 'Credito Libranza', amount: -765000, variant: 'neutral' }, // Negative amount will be red anyway due to logic in SectionTable, variant neutral is fine or default
+      { id: '3', name: 'Pago Bea', amount: 500000, variant: 'income' },
+    ]
+  },
+  {
+    id: 'physical_expenses',
+    title: 'GASTOS FISICOS',
+    icon: 'shopping_bag',
+    type: 'summary_list',
+    total: 1040000,
+    items: [
+      { id: '1', name: 'Gasto1', amount: 600000 },
+      { id: '2', name: 'Gasto2', amount: 300000 },
+      { id: '3', name: 'Comida', amount: 140000 },
+      { id: '4', name: 'Frutas', amount: 0 },
+    ]
+  },
+  {
+    id: 'digital_expenses',
+    title: 'GASTOS DIGITALES',
+    icon: 'devices',
+    type: 'summary_list',
+    total: 3248000,
+    items: [
+      { id: '1', name: 'Apartamento', amount: 2220000 },
+      { id: '2', name: 'Abono pago TCs + 50', amount: 185000 },
+      { id: '3', name: 'Local', amount: 800000 },
+    ]
+  }
 ];
-
-const physicalExpensesData: ExpenseCategoryDTO = {
-  title: 'GASTOS FISICOS',
-  icon: 'shopping_bag',
-  total: 1040000,
-  items: [
-    { id: '1', name: 'Aporte tercero1', amount: 600000 },
-    { id: '2', name: 'Aporte tercero2', amount: 300000 },
-    { id: '3', name: 'Comida', amount: 140000 },
-    { id: '4', name: 'Frutas', amount: 0 },
-  ]
-};
-
-const digitalExpensesData: ExpenseCategoryDTO = {
-  title: 'GASTOS DIGITALES',
-  icon: 'devices',
-  total: 3248000,
-  items: [
-    { id: '1', name: 'Apartamento', amount: 2220000 },
-    { id: '2', name: 'Abono pago TCs + 50', amount: 185000 },
-    { id: '3', name: 'Local', amount: 800000 },
-  ]
-};
 
 const summaryData: SummaryDTO = {
   income: 7794000,
@@ -60,8 +71,6 @@ const debtsData: DebtCardDTO[] = [
     type: 'credit_card',
     color: 'blue',
     details: [
-      { name: 'Computador', amount: 270000 },
-      { name: 'Facebook Ads', amount: 9400 },
       { name: 'Compra1', amount: 21000 },
       { name: 'Compra2', amount: 49000 },
       { name: 'Compra3', amount: 16000 },
@@ -71,16 +80,24 @@ const debtsData: DebtCardDTO[] = [
 ];
 
 export default function DashboardPage() {
-  console.log('STRING VARIABLE: ', 'Rendering Dashboard Page'); // User Rule 3
+  console.log('STRING VARIABLE: ', 'Rendering Dashboard Page with Dynamic Sections');
 
   return (
     <DashboardTemplate 
-      movements={<MovementsTable movements={movementsData} />}
-      physicalExpenses={<ExpensesTable category={physicalExpensesData} />}
-      digitalExpenses={<ExpensesTable category={digitalExpensesData} />}
-      summary={<SummaryCard summary={summaryData} />}
-      debts={<DebtList debts={debtsData} />}
-      exportCard={<ExportCard />}
+      sections={
+        <>
+          {sectionsData.map(section => (
+            <SectionTable key={section.id} section={section} />
+          ))}
+        </>
+      }
+      sidebar={
+        <>
+          <SummaryCard summary={summaryData} />
+          <DebtList debts={debtsData} />
+          <ExportCard />
+        </>
+      }
     />
   );
 }
