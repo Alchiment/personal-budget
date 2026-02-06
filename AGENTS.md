@@ -22,3 +22,57 @@ Project for managing personal budgets.
 - - `dtos` folder for any data transfer objects.
 - - `utils` folder for any utility functions.
 - - and so on.
+
+## Code guidelines
+
+### Dto and Interface declaration
+- All interfaces should be declared in the `dtos` folder.
+- Interfaces should follow the `PascalCase` naming convention finished with `Interface`.
+- Interfaces should be in the same folder as the Dto they are used for.
+- All dtos should be declared in the `dtos` folder.
+- Dtos should follow the `PascalCase` naming convention finished with `DTO`.
+- Dtos should be in the same folder as the component they are used for.
+- Each Dto should be a class implementing the respective interface.
+
+Sample of interface for props:
+```typescript
+
+interface DashboardTemplateInterface {
+  sections: React.ReactNode;
+  sidebar: React.ReactNode;
+}
+
+export function DashboardTemplate({ 
+  sections, 
+  sidebar
+}: DashboardTemplateInterface) {
+    //...
+}
+```
+
+Sample of interface and dto:
+```typescript
+export interface SectionInterface {
+  id: string;
+  title: string;
+  icon: string;
+  type: 'simple_list' | 'summary_list';
+  total?: number;
+  items: SectionItemDTO[];
+  action?: {
+    label: string;
+  };
+}
+
+export class SectionDTO implements SectionInterface {
+  id: string;
+  title: string;
+  icon: string;
+  type: 'simple_list' | 'summary_list';
+  total?: number;
+  items: SectionItemDTO[];
+  action?: {
+    label: string;
+  };
+}
+```
