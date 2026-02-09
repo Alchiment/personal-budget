@@ -64,6 +64,13 @@ export function DashboardContainer({ sectionsData, summary, debts }: DashboardCo
     }));
   };
 
+  const calculateTotal = (section: SectionDTO) => {
+    if (section.type === 'summary_list') {
+      return section.items.reduce((acc, item) => acc + (item.amount || 0), 0);
+    }
+    return section.total;
+  };
+
   return (
     <DashboardTemplate 
       sections={
@@ -71,7 +78,10 @@ export function DashboardContainer({ sectionsData, summary, debts }: DashboardCo
           {sections.map(section => (
             <SectionTable 
               key={section.id} 
-              section={section} 
+              section={{
+                ...section,
+                total: calculateTotal(section)
+              }} 
               onAdd={() => handleAdd(section.id)}
               onRemove={(itemId) => handleRemove(section.id, itemId)}
               onUpdate={(itemId, updates) => handleUpdate(section.id, itemId, updates)}
