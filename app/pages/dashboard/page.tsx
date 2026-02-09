@@ -21,6 +21,7 @@ const sectionsData: SectionDTO[] = [
     title: 'GASTOS FISICOS',
     icon: 'shopping_bag',
     type: 'summary_list',
+    action: { label: 'Agregar' },
     total: 1040000,
     items: [
       { id: '1', name: 'Gasto1', amount: 600000 },
@@ -34,6 +35,7 @@ const sectionsData: SectionDTO[] = [
     title: 'GASTOS DIGITALES',
     icon: 'devices',
     type: 'summary_list',
+    action: { label: 'Agregar' },
     total: 3248000,
     items: [
       { id: '1', name: 'Apartamento', amount: 2220000 },
