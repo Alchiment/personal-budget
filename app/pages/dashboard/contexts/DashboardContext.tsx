@@ -35,7 +35,7 @@ export function DashboardProvider({
   const [debts, setDebts] = useState<DebtCardDTO[]>(initialDebts);
   const [summary, setSummary] = useState<SummaryDTO>(initialSummary);
 
-  // Calculate summary whenever sections change
+  // Calculate summary whenever sections or debts change
   useEffect(() => {
     let totalIncome = 0;
     let totalExpenses = 0;
@@ -53,13 +53,17 @@ export function DashboardProvider({
       }
     });
 
+    // Calculate total debts
+    const totalDebts = debts.reduce((acc, debt) => acc + debt.amount, 0);
+    totalExpenses += totalDebts;
+
     setSummary({
       income: totalIncome,
       expenses: totalExpenses,
       savings: 0, // TODO: Implement savings logic if needed
       balance: totalIncome - totalExpenses
     });
-  }, [sections]);
+  }, [sections, debts]);
 
   const addSectionItem = (sectionId: string) => {
     console.log('STRING VARIABLE: ', 'Adding item to section', sectionId);
