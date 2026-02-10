@@ -14,6 +14,9 @@ interface DashboardContextInterface {
   removeDebtDetail: (debtId: string, detailId: string) => void;
   updateDebtDetail: (debtId: string, detailId: string, updates: Partial<DebtItemDTO>) => void;
   updateDebt: (debtId: string, updates: Partial<DebtCardDTO>) => void;
+  addSection: () => void;
+  addDebt: () => void;
+  updateSection: (sectionId: string, updates: Partial<SectionDTO>) => void;
 }
 
 const DashboardContext = createContext<DashboardContextInterface | undefined>(undefined);
@@ -177,6 +180,41 @@ export function DashboardProvider({
     ));
   };
 
+  const addSection = () => {
+    console.log('STRING VARIABLE: ', 'Adding new section');
+    const newSection: SectionDTO = {
+      id: Math.random().toString(36).substr(2, 9),
+      title: 'Nueva Sección',
+      icon: 'list',
+      type: 'summary_list',
+      action: { label: 'Agregar' },
+      items: [],
+      total: 0
+    };
+    setSections(prev => [...prev, newSection]);
+  };
+
+  const addDebt = () => {
+    console.log('STRING VARIABLE: ', 'Adding new debt card');
+    const newDebt: DebtCardDTO = {
+      id: Math.random().toString(36).substr(2, 9),
+      name: 'Nueva Tarjeta',
+      subtitle: 'Saldo pendiente',
+      amount: 0,
+      type: 'credit_card',
+      color: 'blue',
+      details: []
+    };
+    setDebts(prev => [...prev, newDebt]);
+  };
+
+  const updateSection = (sectionId: string, updates: Partial<SectionDTO>) => {
+    console.log('STRING VARIABLE: ', 'Updating section', sectionId, updates);
+    setSections(prev => prev.map(section => 
+      section.id === sectionId ? { ...section, ...updates } : section
+    ));
+  };
+
   return (
     <DashboardContext.Provider value={{
       sections,
@@ -188,7 +226,10 @@ export function DashboardProvider({
       addDebtDetail,
       removeDebtDetail,
       updateDebtDetail,
-      updateDebt
+      updateDebt,
+      addSection,
+      addDebt,
+      updateSection
     }}>
       {children}
     </DashboardContext.Provider>

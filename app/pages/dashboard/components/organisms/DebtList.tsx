@@ -2,6 +2,8 @@ import React from 'react';
 import { SectionHeader } from '@/app/components/molecules/SectionHeader';
 import { DebtCardDTO, DebtItemDTO } from '../../dtos/dashboard.dto';
 import { DebtCard } from '../molecules/DebtCard';
+import { Button } from '@/app/components/atoms/Button';
+import { Icon } from '@/app/components/atoms/Icon';
 
 interface DebtListProps {
   debts: DebtCardDTO[];
@@ -9,6 +11,7 @@ interface DebtListProps {
   onRemoveDetail?: (debtId: string, detailId: string) => void;
   onUpdateDetail?: (debtId: string, detailId: string, updates: Partial<DebtItemDTO>) => void;
   onUpdateDebt?: (debtId: string, updates: Partial<DebtCardDTO>) => void;
+  onAddDebt?: () => void;
 }
 
 export function DebtList({ 
@@ -16,7 +19,8 @@ export function DebtList({
   onAddDetail,
   onRemoveDetail,
   onUpdateDetail,
-  onUpdateDebt
+  onUpdateDebt,
+  onAddDebt
 }: DebtListProps) {
   return (
     <section>
@@ -32,6 +36,16 @@ export function DebtList({
             onUpdateDebt={onUpdateDebt}
           />
         ))}
+        {onAddDebt && (
+          <Button 
+            variant="ghost" 
+            className="w-full border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-4 text-slate-400 hover:text-slate-600 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/50 flex items-center justify-center gap-2 transition-all"
+            onClick={onAddDebt}
+          >
+            <Icon name="add_card" className="text-xl opacity-50" />
+            <span className="font-medium text-sm">Agregar Nueva Tarjeta</span>
+          </Button>
+        )}
       </div>
     </section>
   );

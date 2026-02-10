@@ -10,7 +10,8 @@ export function DebtsContainer() {
     addDebtDetail, 
     removeDebtDetail, 
     updateDebtDetail,
-    updateDebt
+    updateDebt,
+    addDebt
   } = useDashboard();
 
   return (
@@ -20,6 +21,7 @@ export function DebtsContainer() {
       onRemoveDetail={removeDebtDetail}
       onUpdateDetail={updateDebtDetail}
       onUpdateDebt={updateDebt}
+      onAddDebt={addDebt}
     />
   );
 }

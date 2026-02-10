@@ -5,7 +5,7 @@ import { useSection } from '../contexts/SectionContext';
 import { SectionTable } from '../components/organisms/SectionTable';
 
 export function SectionContainer() {
-  const { section, addItem, removeItem, updateItem } = useSection();
+  const { section, addItem, removeItem, updateItem, updateSection } = useSection();
 
   return (
     <SectionTable 
@@ -13,6 +13,7 @@ export function SectionContainer() {
       onAdd={addItem}
       onRemove={removeItem}
       onUpdate={updateItem}
+      onUpdateSection={updateSection}
     />
   );
 }

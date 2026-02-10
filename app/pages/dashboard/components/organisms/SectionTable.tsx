@@ -15,9 +15,10 @@ interface SectionTableProps {
   onAdd?: () => void;
   onRemove?: (itemId: string) => void;
   onUpdate?: (itemId: string, updates: Partial<SectionItemDTO>) => void;
+  onUpdateSection?: (updates: Partial<SectionDTO>) => void;
 }
 
-export function SectionTable({ section, onAdd, onRemove, onUpdate }: SectionTableProps) {
+export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSection }: SectionTableProps) {
   const [isEditing, setIsEditing] = React.useState(false);
   
   const headerAction = (section.action && isEditing) ? { ...section.action, onClick: onAdd } : undefined;
@@ -32,6 +33,8 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate }: SectionTabl
         title={section.title} 
         icon={section.icon} 
         action={headerAction} 
+        isEditing={isEditing}
+        onUpdateTitle={onUpdateSection ? (newTitle) => onUpdateSection({ title: newTitle }) : undefined}
       >
         {onUpdate && (
           <Button

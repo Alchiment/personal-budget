@@ -9,6 +9,7 @@ interface SectionContextInterface {
   addItem: () => void;
   removeItem: (itemId: string) => void;
   updateItem: (itemId: string, updates: Partial<SectionItemDTO>) => void;
+  updateSection: (updates: Partial<SectionDTO>) => void;
   total: number;
 }
 
@@ -20,7 +21,7 @@ interface SectionProviderProps {
 }
 
 export function SectionProvider({ children, sectionId }: SectionProviderProps) {
-  const { sections, addSectionItem, removeSectionItem, updateSectionItem } = useDashboard();
+  const { sections, addSectionItem, removeSectionItem, updateSectionItem, updateSection } = useDashboard();
 
   const section = useMemo(() => 
     sections.find(s => s.id === sectionId), 
@@ -44,9 +45,10 @@ export function SectionProvider({ children, sectionId }: SectionProviderProps) {
       addItem: () => addSectionItem(sectionId),
       removeItem: (itemId: string) => removeSectionItem(sectionId, itemId),
       updateItem: (itemId: string, updates: Partial<SectionItemDTO>) => updateSectionItem(sectionId, itemId, updates),
+      updateSection: (updates: Partial<SectionDTO>) => updateSection(sectionId, updates),
       total
     };
-  }, [section, sectionId, addSectionItem, removeSectionItem, updateSectionItem]);
+  }, [section, sectionId, addSectionItem, removeSectionItem, updateSectionItem, updateSection]);
 
   if (!section || !contextValue) {
     // Or return null, or render children with null context?
