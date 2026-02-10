@@ -3,7 +3,7 @@
 import React from 'react';
 import { DashboardTemplate } from '../templates/DashboardTemplate';
 import { SummaryCard } from '../components/organisms/SummaryCard';
-import { DebtList } from '../components/organisms/DebtList';
+import { DebtsContainer } from './DebtsContainer';
 import { ExportCard } from '../components/organisms/ExportCard';
 import { SectionDTO, SummaryDTO, DebtCardDTO } from '../dtos/dashboard.dto';
 import { DashboardProvider, useDashboard } from '../contexts/DashboardContext';
@@ -17,7 +17,7 @@ interface DashboardContainerProps {
 }
 
 function DashboardContent() {
-  const { sections, summary, debts } = useDashboard();
+  const { sections, summary } = useDashboard();
 
   return (
     <DashboardTemplate 
@@ -33,7 +33,7 @@ function DashboardContent() {
       sidebar={
         <>
           <SummaryCard summary={summary} />
-          <DebtList debts={debts} />
+          <DebtsContainer />
           <ExportCard />
         </>
       }

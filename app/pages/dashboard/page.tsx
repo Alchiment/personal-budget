@@ -69,10 +69,10 @@ const debtsData: DebtCardDTO[] = [
     type: 'credit_card',
     color: 'blue',
     details: [
-      { name: 'Compra1', amount: 21000 },
-      { name: 'Compra2', amount: 49000 },
-      { name: 'Compra3', amount: 16000 },
-      { name: 'Compra4', amount: 6500 },
+      { id: '1', name: 'Compra1', amount: 21000 },
+      { id: '2', name: 'Compra2', amount: 49000 },
+      { id: '3', name: 'Compra3', amount: 16000 },
+      { id: '4', name: 'Compra4', amount: 6500 },
     ]
   }
 ];

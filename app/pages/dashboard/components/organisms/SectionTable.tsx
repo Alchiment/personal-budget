@@ -18,7 +18,13 @@ interface SectionTableProps {
 }
 
 export function SectionTable({ section, onAdd, onRemove, onUpdate }: SectionTableProps) {
-  const headerAction = section.action ? { ...section.action, onClick: onAdd } : undefined;
+  const [isEditing, setIsEditing] = React.useState(false);
+  
+  const headerAction = (section.action && isEditing) ? { ...section.action, onClick: onAdd } : undefined;
+
+  const toggleEdit = () => {
+    setIsEditing(!isEditing);
+  };
 
   return (
     <section>
@@ -26,7 +32,22 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate }: SectionTabl
         title={section.title} 
         icon={section.icon} 
         action={headerAction} 
-      />
+      >
+        {onUpdate && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+                "h-6 w-6 rounded-full transition-colors",
+                isEditing ? "bg-primary/10 text-primary hover:bg-primary/20" : "text-slate-400 hover:text-slate-600"
+            )}
+            onClick={toggleEdit}
+            title={isEditing ? "Finalizar edición" : "Editar sección"}
+          >
+            <Icon name={isEditing ? "check" : "edit"} className="text-sm" />
+          </Button>
+        )}
+      </SectionHeader>
       <Card noPadding>
         <table className="w-full text-left border-collapse">
           <tbody>
@@ -58,7 +79,7 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate }: SectionTabl
                   )}
                 >
                   <td className={cn("p-4", isExpenseRow && "text-sm")}>
-                    {onUpdate ? (
+                    {isEditing && onUpdate ? (
                       <Input 
                         value={item.name} 
                         onChange={(e) => onUpdate(item.id, { name: e.target.value })}
@@ -70,7 +91,7 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate }: SectionTabl
                     )}
                   </td>
                   <td className={cn("p-4 text-right", isExpenseRow && "font-mono text-sm")}>
-                    {onUpdate ? (
+                    {isEditing && onUpdate ? (
                       <div className="flex justify-end">
                         <CurrencyInput 
                           value={item.amount} 
@@ -93,17 +114,22 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate }: SectionTabl
                       )
                     )}
                   </td>
-                  {onRemove && (
+                  {onRemove && isEditing && (
                     <td className="p-4 w-10 text-center transition-opacity">
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-8 w-8 text-slate-400 hover:text-red-500"
+                        className={cn(
+                          "h-8 w-8 text-slate-400 hover:text-red-500"
+                        )}
                         onClick={() => onRemove(item.id)}
                       >
                         <Icon name="delete" className="text-lg" />
                       </Button>
                     </td>
+                  )}
+                  {onRemove && !isEditing && (
+                     <td className="p-4 w-10"></td>
                   )}
                 </tr>
               );

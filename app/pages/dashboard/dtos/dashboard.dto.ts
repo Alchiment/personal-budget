@@ -18,6 +18,7 @@ export interface SectionDTO {
 }
 
 export interface DebtItemDTO {
+  id: string;
   name: string;
   amount: number;
 }
