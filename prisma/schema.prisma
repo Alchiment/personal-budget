@@ -1,0 +1,201 @@
+// Personal Budget - Multi-Tenancy Schema
+// Architecture: Schema-per-Tenant with PostgreSQL
+// Each tenant gets their own schema within the same database
+// Admin database tracks tenant metadata
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// ADMIN SCHEMA MODELS - Tracks tenant configuration and metadata
+// ============================================================================
+
+/// Represents a tenant in the system
+/// In schema-per-tenant architecture, each tenant has their own database schema
+model Tenant {
+  /// Unique tenant identifier
+  id String @id @default(cuid())
+  
+  /// Human-readable tenant name
+  name String
+  
+  /// The schema name this tenant uses (e.g., "tenant_abc123")
+  schemaName String @unique
+  
+  /// Indicates if this tenant is active
+  isActive Boolean @default(true)
+  
+  /// Tenant creation timestamp
+  createdAt DateTime @default(now())
+  
+  /// Last update timestamp
+  updatedAt DateTime @updatedAt
+  
+  @@map("tenants")
+}
+
+// ============================================================================
+// TENANT SCHEMA MODELS - These models are replicated in each tenant schema
+// 
+// To use these models, set the appropriate PostgreSQL schema search_path
+// Example: SET search_path TO 'tenant_abc123';
+// 
+// NOTE: After changing tenant context, regenerate Prisma client:
+// npx prisma generate
+// ============================================================================
+
+/// User in the tenant system
+/// Each tenant can have multiple users
+model User {
+  /// Unique user identifier within tenant
+  id String @id @default(cuid())
+  
+  /// User's email address (unique within tenant)
+  email String @unique
+  
+  /// User's display name
+  name String?
+  
+  /// Password hash (implement proper hashing in application)
+  passwordHash String?
+  
+  /// Refresh token for JWT authentication
+  refreshToken String?
+  
+  /// Whether the user account is active
+  isActive Boolean @default(true)
+  
+  /// Last login timestamp
+  lastLoginAt DateTime?
+  
+  /// User creation timestamp
+  createdAt DateTime @default(now())
+  
+  /// Last update timestamp
+  updatedAt DateTime @updatedAt
+  
+  @@map("users")
+}
+
+/// Represents a budget section (e.g., "movements", "physical expenses", "digital expenses")
+model Section {
+  /// Unique section identifier within tenant
+  id String @id @default(cuid())
+  
+  /// Section title
+  title String
+  
+  /// Section icon identifier
+  icon String
+  
+  /// Section type (simple_list or summary_list)
+  type SectionType @default(SIMPLE_LIST)
+  
+  /// Total amount in this section
+  total Float @default(0)
+  
+  /// Display order
+  order Int @default(0)
+  
+  /// Section creation timestamp
+  createdAt DateTime @default(now())
+  
+  /// Last update timestamp
+  updatedAt DateTime @updatedAt
+  
+  /// Associated items in this section
+  items SectionItem[]
+  
+  @@map("sections")
+}
+
+/// Individual item within a section
+model SectionItem {
+  /// Unique item identifier within tenant
+  id String @id @default(cuid())
+  
+  /// Item name/description
+  name String
+  
+  /// Item amount
+  amount Float
+  
+  /// Item type/category
+  itemType String?
+  
+  /// Related section
+  sectionId String
+  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  
+  /// Item creation timestamp
+  createdAt DateTime @default(now())
+  
+  /// Last update timestamp
+  updatedAt DateTime @updatedAt
+  
+  @@map("section_items")
+}
+
+/// Credit card debt tracking
+model Debt {
+  /// Unique debt identifier within tenant
+  id String @id @default(cuid())
+  
+  /// Card name/label
+  label String
+  
+  /// Credit limit
+  limit Float
+  
+  /// Current used amount
+  used Float @default(0)
+  
+  /// Card status
+  status String @default("active")
+  
+  /// Debt creation timestamp
+  createdAt DateTime @default(now())
+  
+  /// Last update timestamp
+  updatedAt DateTime @updatedAt
+  
+  @@map("debts")
+}
+
+/// Summary/Dashboard metrics
+model Summary {
+  /// Unique summary identifier within tenant
+  id String @id @default(cuid())
+  
+  /// Total balance across all sections
+  totalBalance Float @default(0)
+  
+  /// Total debt used
+  totalDebtUsed Float @default(0)
+  
+  /// Total debt available
+  totalDebtAvailable Float @default(0)
+  
+  /// Summary last updated
+  updatedAt DateTime @updatedAt
+  
+  @@map("summaries")
+}
+
+// ============================================================================
+// ENUMS and TYPES
+// ============================================================================
+
+/// Section type enum for categorizing budget sections
+enum SectionType {
+  SIMPLE_LIST
+  SUMMARY_LIST
+  
+  @@map("section_type_enum")
+}
