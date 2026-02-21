@@ -9,6 +9,8 @@ Project for managing personal budgets.
 - Locally installation npm pacakges with `npm install`.
 - Run the project with `npm run dev` locally.
 - Build project for production with `npm run build`.
+- Run database migrations with `npx dotenv -e .env.local -- prisma migrate dev --name <migration_name>`.
+- Generate Prisma client with `npx dotenv -e .env.local -- prisma generate`.
 
 # Project structure
 - Project is following Container/Presentational pattern.

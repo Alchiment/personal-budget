@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -6,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { Button } from '../atoms/Button';
 import { FormField } from '../molecules/FormField';
 
-export function LoginForm() {
+export function RegisterForm() {
   const router = useRouter();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -19,23 +19,24 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, name }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.message || 'Login failed');
+        throw new Error(data.message || 'Registration failed');
       }
 
       router.push('/pages/dashboard');
+      router.refresh();
     } catch (err: any) {
-      setError(err.message || 'An error occurred during login');
+      setError(err.message || 'An error occurred during registration');
     } finally {
       setLoading(false);
     }
@@ -44,6 +45,16 @@ export function LoginForm() {
   return (
     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
       <div className="space-y-4 rounded-md shadow-sm">
+        <FormField
+          id="name"
+          label="Full name"
+          name="name"
+          type="text"
+          autoComplete="name"
+          placeholder="Full name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
         <FormField
           id="email-address"
           label="Email address"
@@ -60,7 +71,7 @@ export function LoginForm() {
           label="Password"
           name="password"
           type="password"
-          autoComplete="current-password"
+          autoComplete="new-password"
           required
           placeholder="Password"
           value={password}
@@ -80,7 +91,7 @@ export function LoginForm() {
           disabled={loading}
           className="w-full"
         >
-          {loading ? 'Signing in...' : 'Sign in'}
+          {loading ? 'Creating account...' : 'Create account'}
         </Button>
       </div>
     </form>
