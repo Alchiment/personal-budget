@@ -47,18 +47,23 @@ export class AuthService {
     // Hash password
     const passwordHash = await hashPassword(password);
 
-    // Generate tokens
-    const { accessToken, refreshToken } = generateTokenPair(name || email, email);
-
-    // Create user
+    // Create user first to get the real user.id
     const user = await this.prisma.user.create({
       data: {
         email,
         name: name || null,
         passwordHash,
-        refreshToken,
         isActive: true,
       },
+    });
+
+    // Generate tokens using the real user.id
+    const { accessToken, refreshToken } = generateTokenPair(user.id, user.email);
+
+    // Store refresh token on the user record
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken },
     });
 
     return new AuthTokenResponseDTO({

@@ -4,6 +4,7 @@
  */
 
 import jwt from 'jsonwebtoken';
+import { jwtVerify, type JWTPayload as JoseJWTPayload } from 'jose';
 
 export interface JWTPayload {
   userId: string;
@@ -114,4 +115,22 @@ export function extractTokenFromHeader(authHeader: string | null | undefined): s
   const parts = authHeader.split(' ');
   if (parts.length !== 2 || parts[0] !== 'Bearer') return null;
   return parts[1];
+}
+
+/**
+ * Verify an access token using Web Crypto API (Edge Runtime compatible)
+ * Use this in middleware instead of verifyAccessToken
+ * @param token - The JWT token to verify
+ * @returns Decoded token payload
+ * @throws Error if token is invalid or expired
+ */
+export async function verifyAccessTokenEdge(token: string): Promise<JWTPayload> {
+  try {
+    const secret = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+    const encodedSecret = new TextEncoder().encode(secret);
+    const { payload } = await jwtVerify(token, encodedSecret);
+    return payload as unknown as JWTPayload;
+  } catch {
+    throw new Error('Invalid or expired access token');
+  }
 }

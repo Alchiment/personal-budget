@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { verifyAccessToken } from './app/lib/auth/jwt';
+import { verifyAccessTokenEdge } from './app/lib/auth/jwt';
 
 // Define paths that do not require authentication
 const publicPaths = [
@@ -10,7 +10,7 @@ const publicPaths = [
   // Add other public routes here
 ];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check if the current path is public
@@ -35,8 +35,8 @@ export function middleware(request: NextRequest) {
   }
 
   try {
-    // Verify token
-    verifyAccessToken(token);
+    // Verify token using Edge Runtime-compatible jose implementation
+    await verifyAccessTokenEdge(token);
     return NextResponse.next();
   } catch (error) {
     // Token invalid or expired
