@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentTenantClient } from '@/app/lib/db';
+import { getClient } from '@/app/lib/db';
 import { AuthService } from '@/app/lib/auth/auth.service';
 import { RefreshTokenRequestDTO, AuthErrorResponseDTO } from '@/app/pages/auth/dtos/auth.dto';
 import { verifyRefreshToken } from '@/app/lib/auth/jwt';
@@ -30,11 +30,8 @@ export async function POST(request: NextRequest) {
     // Verify refresh token and extract payload
     const payload = verifyRefreshToken(refreshDto.refreshToken);
 
-    // Get tenant-specific client
-    const tenantClient = getCurrentTenantClient();
-
     // Initialize auth service
-    const authService = new AuthService(tenantClient);
+    const authService = new AuthService(getClient());
 
     // Refresh access token
     const response = await authService.refreshAccessToken(payload.userId, refreshDto.refreshToken);

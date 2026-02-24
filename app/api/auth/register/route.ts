@@ -6,7 +6,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getCurrentTenantClient } from '@/app/lib/db';
+import { getClient } from '@/app/lib/db';
 import { AuthService } from '@/app/lib/auth/auth.service';
 import { RegisterRequestDTO, AuthErrorResponseDTO } from '@/app/pages/auth/dtos/auth.dto';
 
@@ -26,11 +26,8 @@ export async function POST(request: NextRequest) {
     // Create DTO
     const registerDto = new RegisterRequestDTO({ email, password, name });
 
-    // Get tenant-specific client
-    const tenantClient = getCurrentTenantClient();
-
     // Initialize auth service
-    const authService = new AuthService(tenantClient);
+    const authService = new AuthService(getClient());
 
     // Perform registration
     const response = await authService.register(registerDto.email, registerDto.password, registerDto.name);
