@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useDashboard } from '../contexts/DashboardContext';
+import { useDashboardContext } from '../hooks/useDashboardContext';
 import { DebtList } from '../components/organisms/DebtList';
 
 export function DebtsContainer() {
@@ -12,7 +12,7 @@ export function DebtsContainer() {
     updateDebtDetail,
     updateDebt,
     addDebt
-  } = useDashboard();
+  } = useDashboardContext();
 
   return (
     <DebtList 

@@ -2,26 +2,15 @@
 
 import React, { createContext, useContext, ReactNode, useMemo } from 'react';
 import { SectionDTO, SectionItemDTO } from '../dtos/dashboard.dto';
-import { useDashboard } from './DashboardContext';
+import { useDashboardContext } from '../hooks/useDashboardContext';
+import { SectionContextInterface } from '../dtos/section-context.dto';
+import { SectionProviderProps } from '../dtos/section.dto';
 
-interface SectionContextInterface {
-  section: SectionDTO;
-  addItem: () => void;
-  removeItem: (itemId: string) => void;
-  updateItem: (itemId: string, updates: Partial<SectionItemDTO>) => void;
-  updateSection: (updates: Partial<SectionDTO>) => void;
-  total: number;
-}
 
-const SectionContext = createContext<SectionContextInterface | undefined>(undefined);
-
-interface SectionProviderProps {
-  children: ReactNode;
-  sectionId: string;
-}
+export const SectionContext = createContext<SectionContextInterface | undefined>(undefined);
 
 export function SectionProvider({ children, sectionId }: SectionProviderProps) {
-  const { sections, addSectionItem, removeSectionItem, updateSectionItem, updateSection } = useDashboard();
+  const { sections, addSectionItem, removeSectionItem, updateSectionItem, updateSection, removeSection, requestRemoveSection } = useDashboardContext();
 
   const section = useMemo(() => 
     sections.find(s => s.id === sectionId), 
@@ -46,9 +35,11 @@ export function SectionProvider({ children, sectionId }: SectionProviderProps) {
       removeItem: (itemId: string) => removeSectionItem(sectionId, itemId),
       updateItem: (itemId: string, updates: Partial<SectionItemDTO>) => updateSectionItem(sectionId, itemId, updates),
       updateSection: (updates: Partial<SectionDTO>) => updateSection(sectionId, updates),
+      removeSection: () => removeSection(sectionId),
+      requestRemoveSection: () => requestRemoveSection(sectionId),
       total
     };
-  }, [section, sectionId, addSectionItem, removeSectionItem, updateSectionItem, updateSection]);
+  }, [section, sectionId, addSectionItem, removeSectionItem, updateSectionItem, updateSection, removeSection, requestRemoveSection]);
 
   if (!section || !contextValue) {
     // Or return null, or render children with null context?
@@ -61,12 +52,4 @@ export function SectionProvider({ children, sectionId }: SectionProviderProps) {
       {children}
     </SectionContext.Provider>
   );
-}
-
-export function useSection() {
-  const context = useContext(SectionContext);
-  if (context === undefined) {
-    throw new Error('useSection must be used within a SectionProvider');
-  }
-  return context;
 }

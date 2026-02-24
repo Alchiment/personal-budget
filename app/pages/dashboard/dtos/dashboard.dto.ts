@@ -1,41 +1,75 @@
-export interface SectionItemDTO {
+// ============================================================================
+// Types
+// ============================================================================
+
+import { ReactNode } from "react";
+
+export type SectionItemVariantType = 'income' | 'expense' | 'neutral' | 'default';
+export type SectionLayoutType = 'simple_list' | 'summary_list';
+export type DebtColorType = 'purple' | 'blue';
+export type DebtCardType = 'credit_card';
+
+// ============================================================================
+// Interfaces
+// ============================================================================
+
+export interface SectionItemInterface {
   id: string;
   name: string;
   amount: number;
-  variant?: 'income' | 'expense' | 'neutral' | 'default';
+  variant?: SectionItemVariantType;
 }
 
-export interface SectionDTO {
+export interface SectionInterface {
   id: string;
   title: string;
   icon: string;
-  type: 'simple_list' | 'summary_list';
+  type: SectionLayoutType;
   total?: number;
-  items: SectionItemDTO[];
+  items: SectionItemInterface[];
   action?: {
     label: string;
   };
 }
 
-export interface DebtItemDTO {
+export interface DebtItemInterface {
   id: string;
   name: string;
   amount: number;
 }
 
-export interface DebtCardDTO {
+export interface DebtCardInterface {
   id: string;
   name: string;
   subtitle: string;
   amount: number;
-  type: 'credit_card';
-  color: 'purple' | 'blue'; // Visual hint
-  details?: DebtItemDTO[];
+  type: DebtCardType;
+  color: DebtColorType;
+  details?: DebtItemInterface[];
 }
 
-export interface SummaryDTO {
+export interface SummaryInterface {
   income: number;
   expenses: number;
   savings: number;
   balance: number;
+}
+
+// ============================================================================
+// DTOs — plain object types implementing their interfaces.
+// No constructors: class instances cannot cross the server/client boundary in
+// Next.js (React requires plain objects for serialization).
+// ============================================================================
+
+export type SectionItemDTO = SectionItemInterface;
+export type SectionDTO = SectionInterface;
+export type DebtItemDTO = DebtItemInterface;
+export type DebtCardDTO = DebtCardInterface;
+export type SummaryDTO = SummaryInterface;
+
+export interface DashboardProviderProps {
+  children: ReactNode;
+  initialSections: SectionDTO[];
+  initialDebts: DebtCardDTO[];
+  initialSummary: SummaryDTO;
 }

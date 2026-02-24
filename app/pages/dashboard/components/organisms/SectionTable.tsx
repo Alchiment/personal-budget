@@ -16,9 +16,10 @@ interface SectionTableProps {
   onRemove?: (itemId: string) => void;
   onUpdate?: (itemId: string, updates: Partial<SectionItemDTO>) => void;
   onUpdateSection?: (updates: Partial<SectionDTO>) => void;
+  onRemoveSection?: () => void;
 }
 
-export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSection }: SectionTableProps) {
+export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSection, onRemoveSection }: SectionTableProps) {
   const [isEditing, setIsEditing] = React.useState(false);
   
   const headerAction = (section.action && isEditing) ? { ...section.action, onClick: onAdd } : undefined;
@@ -37,18 +38,32 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSecti
         onUpdateTitle={onUpdateSection ? (newTitle) => onUpdateSection({ title: newTitle }) : undefined}
       >
         {onUpdate && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-                "h-6 w-6 rounded-full transition-colors",
-                isEditing ? "bg-primary/10 text-primary hover:bg-primary/20" : "text-slate-400 hover:text-slate-600"
-            )}
-            onClick={toggleEdit}
-            title={isEditing ? "Finalizar edición" : "Editar sección"}
-          >
-            <Icon name={isEditing ? "check" : "edit"} className="text-sm" />
-          </Button>
+          <>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                  "h-6 w-6 rounded-full transition-colors",
+                  isEditing ? "bg-primary/10 text-primary hover:bg-primary/20" : "text-slate-400 hover:text-slate-600"
+              )}
+              onClick={toggleEdit}
+              title={isEditing ? "Finalizar edición" : "Editar sección"}
+            >
+              <Icon name={isEditing ? "check" : "edit"} className="text-sm" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                  "h-6 w-6 rounded-full transition-colors",
+                  isEditing ? "bg-red-500/10 text-red-500 hover:bg-red-500/20" : "text-slate-400 hover:text-slate-600"
+              )}
+              onClick={() => onRemoveSection?.()}
+              title={isEditing ? "Eliminar sección" : "Eliminar"}
+            >
+              <Icon name="delete" className="text-sm" />
+            </Button>
+          </>
         )}
       </SectionHeader>
       <Card noPadding>

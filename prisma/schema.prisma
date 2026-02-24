@@ -40,6 +40,12 @@ model User {
   /// Last update timestamp
   updatedAt DateTime @updatedAt
 
+  /// Budget sections owned by this user
+  sections Section[]
+
+  /// Debts owned by this user
+  debts Debt[]
+
   @@map("users")
 }
 
@@ -57,11 +63,18 @@ model Section {
   /// Section type (simple_list or summary_list)
   type SectionType @default(SIMPLE_LIST)
 
-  /// Total amount in this section
+  /// Total amount in this section (used for summary_list)
   total Float @default(0)
+
+  /// Action label shown on the section (e.g. "Agregar")
+  actionLabel String?
 
   /// Display order
   order Int @default(0)
+
+  /// Owner of this section
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   /// Section creation timestamp
   createdAt DateTime @default(now())
@@ -86,12 +99,12 @@ model SectionItem {
   /// Item amount
   amount Float
 
-  /// Item type/category
-  itemType String?
+  /// Visual variant for display (income, expense, neutral, default)
+  variant String?
 
   /// Related section
   sectionId String
-  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
 
   /// Item creation timestamp
   createdAt DateTime @default(now())
@@ -102,22 +115,29 @@ model SectionItem {
   @@map("section_items")
 }
 
-/// Credit card debt tracking
+/// Credit card or debt tracking
 model Debt {
   /// Unique debt identifier
   id String @id @default(cuid())
 
-  /// Card name/label
-  label String
+  /// Card/debt display name
+  name String
 
-  /// Credit limit
-  limit Float
+  /// Subtitle shown on the card (e.g. "Saldo pendiente")
+  subtitle String
 
-  /// Current used amount
-  used Float @default(0)
+  /// Total amount used/owed (sum of details)
+  amount Float @default(0)
 
-  /// Card status
-  status String @default("active")
+  /// Debt type (e.g. credit_card)
+  type String @default("credit_card")
+
+  /// Visual color hint (purple, blue)
+  color String @default("blue")
+
+  /// Owner of this debt
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   /// Debt creation timestamp
   createdAt DateTime @default(now())
@@ -125,28 +145,37 @@ model Debt {
   /// Last update timestamp
   updatedAt DateTime @updatedAt
 
+  /// Individual purchase/charge details
+  details DebtDetail[]
+
   @@map("debts")
 }
 
-/// Summary/Dashboard metrics
-model Summary {
-  /// Unique summary identifier
+/// Individual charge or purchase within a debt card
+model DebtDetail {
+  /// Unique detail identifier
   id String @id @default(cuid())
 
-  /// Total balance across all sections
-  totalBalance Float @default(0)
+  /// Description of the charge
+  name String
 
-  /// Total debt used
-  totalDebtUsed Float @default(0)
+  /// Amount of the charge
+  amount Float
 
-  /// Total debt available
-  totalDebtAvailable Float @default(0)
+  /// Parent debt
+  debtId String
+  debt   Debt   @relation(fields: [debtId], references: [id], onDelete: Cascade)
 
-  /// Summary last updated
+  /// Detail creation timestamp
+  createdAt DateTime @default(now())
+
+  /// Last update timestamp
   updatedAt DateTime @updatedAt
 
-  @@map("summaries")
+  @@map("debt_details")
 }
+
+
 
 // ============================================================================
 // ENUMS and TYPES

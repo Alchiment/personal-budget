@@ -1,11 +1,11 @@
 'use client';
 
 import React from 'react';
-import { useSection } from '../contexts/SectionContext';
 import { SectionTable } from '../components/organisms/SectionTable';
+import { useSectionContext } from '../hooks/useSectionContext';
 
 export function SectionContainer() {
-  const { section, addItem, removeItem, updateItem, updateSection } = useSection();
+  const { section, addItem, removeItem, updateItem, updateSection, requestRemoveSection } = useSectionContext();
 
   return (
     <SectionTable 
@@ -14,6 +14,7 @@ export function SectionContainer() {
       onRemove={removeItem}
       onUpdate={updateItem}
       onUpdateSection={updateSection}
+      onRemoveSection={requestRemoveSection}
     />
   );
 }

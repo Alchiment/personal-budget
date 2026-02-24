@@ -1,219 +1,229 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { SectionDTO, SummaryDTO, DebtCardDTO, SectionItemDTO, DebtItemDTO } from '../dtos/dashboard.dto';
+import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
+import { SectionDTO, SummaryDTO, DebtCardDTO, SectionItemDTO, DebtItemDTO, DashboardProviderProps } from '../dtos/dashboard.dto';
+import { DashboardContextInterface } from '../dtos/dashboard-context.dto';
+import { ConfirmModal } from '../../../components/molecules/ConfirmModal';
+import { createTmpId } from '../utils/temp-id.util';
 
-interface DashboardContextInterface {
-  sections: SectionDTO[];
-  debts: DebtCardDTO[];
-  summary: SummaryDTO;
-  addSectionItem: (sectionId: string) => void;
-  removeSectionItem: (sectionId: string, itemId: string) => void;
-  updateSectionItem: (sectionId: string, itemId: string, updates: Partial<SectionItemDTO>) => void;
-  addDebtDetail: (debtId: string) => void;
-  removeDebtDetail: (debtId: string, detailId: string) => void;
-  updateDebtDetail: (debtId: string, detailId: string, updates: Partial<DebtItemDTO>) => void;
-  updateDebt: (debtId: string, updates: Partial<DebtCardDTO>) => void;
-  addSection: () => void;
-  addDebt: () => void;
-  updateSection: (sectionId: string, updates: Partial<SectionDTO>) => void;
-}
+export const DashboardContext = createContext<DashboardContextInterface | undefined>(undefined);
 
-const DashboardContext = createContext<DashboardContextInterface | undefined>(undefined);
-
-interface DashboardProviderProps {
-  children: ReactNode;
-  initialSections: SectionDTO[];
-  initialDebts: DebtCardDTO[];
-  initialSummary: SummaryDTO; // Optional if we calculate it immediately, but good for initial render
-}
-
-export function DashboardProvider({ 
-  children, 
-  initialSections, 
+export function DashboardProvider({
+  children,
+  initialSections,
   initialDebts,
-  initialSummary 
+  initialSummary,
 }: DashboardProviderProps) {
   const [sections, setSections] = useState<SectionDTO[]>(initialSections);
   const [debts, setDebts] = useState<DebtCardDTO[]>(initialDebts);
   const [summary, setSummary] = useState<SummaryDTO>(initialSummary);
+  const [pendingRemoveSectionId, setPendingRemoveSectionId] = useState<string | null>(null);
+  const timerAutoSave = useRef<NodeJS.Timeout | null>(null);
+  let delay = 1;
 
-  // Calculate summary whenever sections or debts change
+  const handleAutoSave = (
+    type: 'section' | 'debt',
+    time: number = 3
+  ) => {
+    delay = time;
+
+    if (timerAutoSave.current) {
+      clearTimeout(timerAutoSave.current);
+    }
+
+    timerAutoSave.current = setTimeout(() => {
+      if (type === 'section') {
+        // complete save code
+        // useSectionSave(sections);
+      }
+      console.log('handle autosave')
+    }, delay * 1000);
+  };
+
+  useEffect(() => {
+    console.log('timer', timerAutoSave.current);
+  }, [timerAutoSave.current]);
+
+
+
   useEffect(() => {
     let totalIncome = 0;
     let totalExpenses = 0;
 
-    sections.forEach(section => {
-      if (section.id === 'movements') {
-        // For movements, we sum everything as income (net income)
-        const sectionTotal = section.items.reduce((acc, item) => acc + item.amount, 0);
+    sections.forEach((section, index) => {
+      const sectionTotal = section.items.reduce((acc, item) => acc + item.amount, 0);
+      if (index === 0 && section.type === 'simple_list') {
         totalIncome += sectionTotal;
       } else {
-        // For other sections, we treat them as expenses
-        // Calculate section total
-        const sectionTotal = section.items.reduce((acc, item) => acc + (item.amount || 0), 0);
         totalExpenses += sectionTotal;
       }
     });
 
-    // Calculate total debts
     const totalDebts = debts.reduce((acc, debt) => acc + debt.amount, 0);
     totalExpenses += totalDebts;
 
     setSummary({
       income: totalIncome,
       expenses: totalExpenses,
-      savings: 0, // TODO: Implement savings logic if needed
-      balance: totalIncome - totalExpenses
+      savings: 0,
+      balance: totalIncome - totalExpenses,
     });
+    // handleAutoSave(5);
   }, [sections, debts]);
+  useEffect(() => {
+    handleAutoSave('section', 5);
+  }, [sections]);
 
-  const addSectionItem = (sectionId: string) => {
-    console.log('STRING VARIABLE: ', 'Adding item to section', sectionId);
-    setSections(prev => prev.map(section => {
-      if (section.id === sectionId) {
-        const newItem: SectionItemDTO = {
-          id: Math.random().toString(36).substr(2, 9),
-          name: 'Nuevo Item',
-          amount: 0,
-          variant: section.id === 'movements' ? 'income' : 'neutral'
-        };
-        return {
-          ...section,
-          items: [...section.items, newItem]
-        };
-      }
-      return section;
-    }));
-  };
+  // --------------------------------------------------------------------------
+  // Section item mutations — optimistic state + enqueue
+  // --------------------------------------------------------------------------
 
-  const removeSectionItem = (sectionId: string, itemId: string) => {
-    console.log('STRING VARIABLE: ', 'Removing item from section', sectionId, itemId);
-    setSections(prev => prev.map(section => {
-      if (section.id === sectionId) {
-        return {
-          ...section,
-          items: section.items.filter(item => item.id !== itemId)
-        };
-      }
-      return section;
-    }));
-  };
+  // Done
+  const addSectionItem = useCallback((sectionId: string) => {
+    const section = sections.find(s => s.id === sectionId);
+    const variant = section?.type === 'simple_list' ? 'income' : 'neutral';
+    const tmpId = createTmpId();
 
-  const updateSectionItem = (sectionId: string, itemId: string, updates: Partial<SectionItemDTO>) => {
-    console.log('STRING VARIABLE: ', 'Updating item', sectionId, itemId, updates);
-    setSections(prev => prev.map(section => {
-      if (section.id === sectionId) {
-        return {
-          ...section,
-          items: section.items.map(item => 
-            item.id === itemId ? { ...item, ...updates } : item
-          )
-        };
-      }
-      return section;
-    }));
-  };
+    const newItem: SectionItemDTO = { id: tmpId, name: 'Nuevo Item', amount: 0, variant };
 
-  const addDebtDetail = (debtId: string) => {
-    console.log('STRING VARIABLE: ', 'Adding detail to debt', debtId);
-    setDebts(prev => prev.map(debt => {
-      if (debt.id === debtId) {
-        const newDetail: DebtItemDTO = {
-          id: Math.random().toString(36).substr(2, 9),
-          name: 'Nueva Compra',
-          amount: 0
-        };
-        const updatedDetails = [...(debt.details || []), newDetail];
-        const newAmount = updatedDetails.reduce((acc, item) => acc + (item.amount || 0), 0);
-        
-        return {
-          ...debt,
-          details: updatedDetails,
-          amount: newAmount
-        };
-      }
-      return debt;
-    }));
-  };
-
-  const removeDebtDetail = (debtId: string, detailId: string) => {
-    console.log('STRING VARIABLE: ', 'Removing detail from debt', debtId, detailId);
-    setDebts(prev => prev.map(debt => {
-      if (debt.id === debtId && debt.details) {
-        const updatedDetails = debt.details.filter(detail => detail.id !== detailId);
-        const newAmount = updatedDetails.reduce((acc, item) => acc + (item.amount || 0), 0);
-        
-        return {
-          ...debt,
-          details: updatedDetails,
-          amount: newAmount
-        };
-      }
-      return debt;
-    }));
-  };
-
-  const updateDebtDetail = (debtId: string, detailId: string, updates: Partial<DebtItemDTO>) => {
-    console.log('STRING VARIABLE: ', 'Updating debt detail', debtId, detailId, updates);
-    setDebts(prev => prev.map(debt => {
-      if (debt.id === debtId && debt.details) {
-        const updatedDetails = debt.details.map(detail => 
-          detail.id === detailId ? { ...detail, ...updates } : detail
-        );
-        const newAmount = updatedDetails.reduce((acc, item) => acc + (item.amount || 0), 0);
-        
-        return {
-          ...debt,
-          details: updatedDetails,
-          amount: newAmount
-        };
-      }
-      return debt;
-    }));
-  };
-
-  const updateDebt = (debtId: string, updates: Partial<DebtCardDTO>) => {
-    console.log('STRING VARIABLE: ', 'Updating debt', debtId, updates);
-    setDebts(prev => prev.map(debt => 
-      debt.id === debtId ? { ...debt, ...updates } : debt
+    setSections(prev => prev.map(s =>
+      s.id === sectionId ? { ...s, items: [...s.items, newItem] } : s
     ));
-  };
+    // TODO: Remove
+    // enqueueAndResolve({
+    //   type: 'ADD_SECTION_ITEM',
+    //   tmpId,
+    //   sectionId,
+    //   data: { name: newItem.name, amount: newItem.amount, variant },
+    // });
+  }, [sections]);
 
-  const addSection = () => {
-    console.log('STRING VARIABLE: ', 'Adding new section');
+  // Done
+  const removeSectionItem = useCallback((sectionId: string, itemId: string) => {
+    setSections(prev => prev.map(s =>
+      s.id === sectionId ? { ...s, items: s.items.filter(item => item.id !== itemId) } : s
+    ));
+  }, []);
+
+  const updateSectionItem = useCallback((
+    sectionId: string,
+    itemId: string,
+    updates: Partial<SectionItemDTO>
+  ) => {
+    setSections(prev => prev.map(s =>
+      s.id === sectionId
+        ? { ...s, items: s.items.map(item => item.id === itemId ? { ...item, ...updates } : item) }
+        : s
+    ));
+  }, []);
+
+  const addSection = useCallback(() => {
+    const tmpId = createTmpId();
     const newSection: SectionDTO = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: tmpId,
       title: 'Nueva Sección',
       icon: 'list',
       type: 'summary_list',
       action: { label: 'Agregar' },
       items: [],
-      total: 0
+      total: 0,
     };
-    setSections(prev => [...prev, newSection]);
-  };
 
-  const addDebt = () => {
-    console.log('STRING VARIABLE: ', 'Adding new debt card');
+    setSections(prev => [...prev, newSection]);
+  }, [sections]);
+
+  // Done
+  const updateSection = useCallback((sectionId: string, updates: Partial<SectionDTO>) => {
+    setSections(prev => prev.map(s =>
+      s.id === sectionId ? { ...s, ...updates } : s
+    ));
+
+    const payload: { title?: string; icon?: string; actionLabel?: string } = {};
+    if (updates.title !== undefined) payload.title = updates.title;
+    if (updates.icon !== undefined) payload.icon = updates.icon;
+    if (updates.action?.label !== undefined) payload.actionLabel = updates.action.label;
+  }, [sections]);
+
+  const removeSection = useCallback((sectionId: string) => {
+    setSections(prev => prev.filter(s => s.id !== sectionId));
+  }, []);
+
+  // --------------------------------------------------------------------------
+  // Deletion start
+  // --------------------------------------------------------------------------
+  const requestRemoveSection = useCallback((sectionId: string) => {
+    setPendingRemoveSectionId(sectionId);
+  }, []);
+
+  const confirmRemoveSection = useCallback(() => {
+    if (pendingRemoveSectionId) {
+      removeSection(pendingRemoveSectionId);
+    }
+    setPendingRemoveSectionId(null);
+  }, [pendingRemoveSectionId, removeSection]);
+
+  const cancelRemoveSection = useCallback(() => {
+    setPendingRemoveSectionId(null);
+  }, []);
+  // --------------------------------------------------------------------------
+  // Deletion end
+  // --------------------------------------------------------------------------
+
+  const addDebtDetail = useCallback((debtId: string) => {
+    const tmpId = createTmpId();
+    const newDetail: DebtItemDTO = { id: tmpId, name: 'Nueva Compra', amount: 0 };
+
+    setDebts(prev => prev.map(d => {
+      if (d.id !== debtId) return d;
+      const updatedDetails = [...(d.details ?? []), newDetail];
+      return { ...d, details: updatedDetails, amount: updatedDetails.reduce((s, i) => s + i.amount, 0) };
+    }));
+  }, []);
+
+  const removeDebtDetail = useCallback((debtId: string, detailId: string) => {
+    setDebts(prev => prev.map(d => {
+      if (d.id !== debtId) return d;
+      const updatedDetails = (d.details ?? []).filter(i => i.id !== detailId);
+      return { ...d, details: updatedDetails, amount: updatedDetails.reduce((s, i) => s + i.amount, 0) };
+    }));
+  }, []);
+
+  const updateDebtDetail = useCallback((
+    debtId: string,
+    detailId: string,
+    updates: Partial<DebtItemDTO>
+  ) => {
+    setDebts(prev => prev.map(d => {
+      if (d.id !== debtId) return d;
+      const updatedDetails = (d.details ?? []).map(i =>
+        i.id === detailId ? { ...i, ...updates } : i
+      );
+      return { ...d, details: updatedDetails, amount: updatedDetails.reduce((s, i) => s + i.amount, 0) };
+    }));
+  }, [debts]);
+
+  const addDebt = useCallback(() => {
+    const tmpId = createTmpId();
     const newDebt: DebtCardDTO = {
-      id: Math.random().toString(36).substr(2, 9),
+      id: tmpId,
       name: 'Nueva Tarjeta',
       subtitle: 'Saldo pendiente',
       amount: 0,
       type: 'credit_card',
       color: 'blue',
-      details: []
+      details: [],
     };
     setDebts(prev => [...prev, newDebt]);
-  };
+  }, []);
 
-  const updateSection = (sectionId: string, updates: Partial<SectionDTO>) => {
-    console.log('STRING VARIABLE: ', 'Updating section', sectionId, updates);
-    setSections(prev => prev.map(section => 
-      section.id === sectionId ? { ...section, ...updates } : section
-    ));
-  };
+  const updateDebt = useCallback((debtId: string, updates: Partial<DebtCardDTO>) => {
+    setDebts(prev => prev.map(d => d.id === debtId ? { ...d, ...updates } : d));
+
+    const payload: { name?: string; subtitle?: string; color?: typeof updates.color } = {};
+    if (updates.name !== undefined) payload.name = updates.name;
+    if (updates.subtitle !== undefined) payload.subtitle = updates.subtitle;
+    if (updates.color !== undefined) payload.color = updates.color;
+  }, [debts]);
 
   return (
     <DashboardContext.Provider value={{
@@ -229,17 +239,18 @@ export function DashboardProvider({
       updateDebt,
       addSection,
       addDebt,
-      updateSection
+      updateSection,
+      removeSection,
+      requestRemoveSection,
     }}>
       {children}
+      <ConfirmModal
+        open={pendingRemoveSectionId !== null}
+        title="Eliminar sección"
+        description="¿Estás seguro de que deseas eliminar esta sección? Esta acción no se puede deshacer."
+        onConfirm={confirmRemoveSection}
+        onCancel={cancelRemoveSection}
+      />
     </DashboardContext.Provider>
   );
-}
-
-export function useDashboard() {
-  const context = useContext(DashboardContext);
-  if (context === undefined) {
-    throw new Error('useDashboard must be used within a DashboardProvider');
-  }
-  return context;
 }

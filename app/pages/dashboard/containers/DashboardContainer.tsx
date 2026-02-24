@@ -6,11 +6,12 @@ import { SummaryCard } from '../components/organisms/SummaryCard';
 import { DebtsContainer } from './DebtsContainer';
 import { ExportCard } from '../components/organisms/ExportCard';
 import { SectionDTO, SummaryDTO, DebtCardDTO } from '../dtos/dashboard.dto';
-import { DashboardProvider, useDashboard } from '../contexts/DashboardContext';
+import { DashboardProvider } from '../contexts/DashboardContext';
 import { SectionProvider } from '../contexts/SectionContext';
 import { SectionContainer } from './SectionContainer';
 import { Button } from '@/app/components/atoms/Button';
 import { Icon } from '@/app/components/atoms/Icon';
+import { useDashboardContext } from '../hooks/useDashboardContext';
 
 interface DashboardContainerProps {
   sectionsData: SectionDTO[];
@@ -19,7 +20,7 @@ interface DashboardContainerProps {
 }
 
 function DashboardContent() {
-  const { sections, summary, addSection } = useDashboard();
+  const { sections, summary, addSection } = useDashboardContext();
 
   return (
     <DashboardTemplate 

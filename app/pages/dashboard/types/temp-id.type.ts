@@ -1,0 +1,1 @@
+export type TmpId = `tmp_${string}`;
