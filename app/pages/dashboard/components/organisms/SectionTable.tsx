@@ -99,7 +99,7 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSecti
                   <td className={cn("p-4", isExpenseRow && "text-sm")}>
                     {isEditing && onUpdate ? (
                       <Input 
-                        value={item.name} 
+                        value={item.name ?? ''} 
                         onChange={(e) => onUpdate(item.id, { name: e.target.value })}
                         className="h-8 w-full max-w-[200px]"
                         placeholder="Concepto"
@@ -112,7 +112,7 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSecti
                     {isEditing && onUpdate ? (
                       <div className="flex justify-end">
                         <CurrencyInput 
-                          value={item.amount} 
+                          value={item.amount ?? 0} 
                           onChange={(val) => onUpdate(item.id, { amount: val })}
                           className="w-32 h-8"
                         />
@@ -120,14 +120,14 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSecti
                     ) : (
                       section.type === 'simple_list' ? (
                         <Badge 
-                          variant={item.variant || (item.amount > 0 ? 'income' : 'neutral')}
-                          className={item.amount < 0 ? "text-red-500 bg-transparent" : ""}
+                          variant={item.variant || ((item.amount ?? 0) > 0 ? 'income' : 'neutral')}
+                          className={item.amount ?? 0 < 0 ? "text-red-500 bg-transparent" : ""}
                         >
-                           {formatCurrency(item.amount)}
+                           {formatCurrency(item.amount ?? 0)}
                         </Badge>
                       ) : (
-                        <span className={item.amount === 0 ? "text-slate-400" : ""}>
-                          {formatCurrency(item.amount)}
+                        <span className={item.amount ?? 0 === 0 ? "text-slate-400" : ""}>
+                          {formatCurrency(item.amount ?? 0)}
                         </span>
                       )
                     )}
