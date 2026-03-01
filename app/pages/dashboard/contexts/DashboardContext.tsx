@@ -5,6 +5,7 @@ import { SectionDTO, SummaryDTO, DebtCardDTO, SectionItemDTO, DebtItemDTO, Dashb
 import { DashboardContextInterface } from '../dtos/dashboard-context.dto';
 import { ConfirmModal } from '../../../components/molecules/ConfirmModal';
 import { createTmpId } from '../utils/temp-id.util';
+import { syncSections, syncDebts } from '../services/dashboardSaveService';
 
 export const DashboardContext = createContext<DashboardContextInterface | undefined>(undefined);
 
@@ -18,31 +19,42 @@ export function DashboardProvider({
   const [debts, setDebts] = useState<DebtCardDTO[]>(initialDebts);
   const [summary, setSummary] = useState<SummaryDTO>(initialSummary);
   const [pendingRemoveSectionId, setPendingRemoveSectionId] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const timerAutoSave = useRef<NodeJS.Timeout | null>(null);
-  let delay = 1;
+  const sectionsRef = useRef<SectionDTO[]>(sections);
+  const debtsRef = useRef<DebtCardDTO[]>(debts);
+  const isMounted = useRef(false);
 
-  const handleAutoSave = (
+  useEffect(() => { sectionsRef.current = sections; }, [sections]);
+  useEffect(() => { debtsRef.current = debts; }, [debts]);
+
+  const handleAutoSave = useCallback((
     type: 'section' | 'debt',
     time: number = 3
   ) => {
-    delay = time;
-
     if (timerAutoSave.current) {
       clearTimeout(timerAutoSave.current);
     }
 
-    timerAutoSave.current = setTimeout(() => {
-      if (type === 'section') {
-        // complete save code
-        // useSectionSave(sections);
-      }
-      console.log('handle autosave')
-    }, delay * 1000);
-  };
+    console.log('timerAutoSave.current', timerAutoSave.current);
+    // timeout is fire uncontrolled
 
-  useEffect(() => {
-    console.log('timer', timerAutoSave.current);
-  }, [timerAutoSave.current]);
+    timerAutoSave.current = setTimeout(async () => {
+      try {
+        setSaveError(null);
+        if (type === 'section') {
+          const synced = await syncSections(sectionsRef.current);
+          setSections(synced);
+        } else {
+          const synced = await syncDebts(debtsRef.current);
+          setDebts(synced);
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to save changes';
+        setSaveError(message);
+      }
+    }, time * 1000);
+  }, []);
 
 
 
@@ -71,8 +83,18 @@ export function DashboardProvider({
     // handleAutoSave(5);
   }, [sections, debts]);
   useEffect(() => {
+    if (!isMounted.current) return;
     handleAutoSave('section', 5);
-  }, [sections]);
+  }, [sections, handleAutoSave]);
+
+  useEffect(() => {
+    if (!isMounted.current) return;
+    handleAutoSave('debt', 5);
+  }, [debts, handleAutoSave]);
+
+  useEffect(() => {
+    isMounted.current = true;
+  }, []);
 
   // --------------------------------------------------------------------------
   // Section item mutations — optimistic state + enqueue
@@ -230,6 +252,7 @@ export function DashboardProvider({
       sections,
       debts,
       summary,
+      saveError,
       addSectionItem,
       removeSectionItem,
       updateSectionItem,
