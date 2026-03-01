@@ -1,16 +1,17 @@
 import { PrismaClient } from '@/app/generated/prisma/client';
-import { SummaryDTO } from '../dtos/dashboard.dto';
+import { SectionDTO, SummaryDTO } from '../dtos/dashboard.dto';
+import { computeSummary } from '../utils/compute-summary.util';
 
 /**
  * Computes the dashboard summary by aggregating sections and debts for a user.
- * The first SIMPLE_LIST section (by order) is treated as income.
- * All remaining sections and debt amounts are treated as expenses.
+ * Sections with isIncome === true contribute to income.
+ * All other sections and debt amounts are treated as expenses.
  */
 export async function getSummaryByUser(
   db: PrismaClient,
   userId: string
 ): Promise<SummaryDTO> {
-  const sections = await db.section.findMany({
+  const rows = await db.section.findMany({
     where: { userId },
     orderBy: { order: 'asc' },
     include: { items: true },
@@ -20,25 +21,30 @@ export async function getSummaryByUser(
     where: { userId },
   });
 
-  let totalIncome = 0;
-  let totalExpenses = 0;
+  const sections: SectionDTO[] = rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    icon: row.icon,
+    type: row.type.toLowerCase() as SectionDTO['type'],
+    isIncome: row.isIncome,
+    total: row.total,
+    action: row.actionLabel ? { label: row.actionLabel } : undefined,
+    items: row.items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      amount: item.amount,
+      variant: (item.variant as SectionDTO['items'][number]['variant']) ?? 'default',
+    })),
+  }));
 
-  sections.forEach((section, index) => {
-    const sectionTotal = section.items.reduce((acc, item) => acc + item.amount, 0);
-    if (index === 0 && section.type === 'SIMPLE_LIST') {
-      totalIncome += sectionTotal;
-    } else {
-      totalExpenses += sectionTotal;
-    }
-  });
+  const debtDTOs = debts.map((debt) => ({
+    id: debt.id,
+    name: debt.name,
+    subtitle: debt.subtitle,
+    amount: debt.amount,
+    type: debt.type as 'credit_card',
+    color: debt.color as 'purple' | 'blue',
+  }));
 
-  const totalDebts = debts.reduce((acc, debt) => acc + debt.amount, 0);
-  totalExpenses += totalDebts;
-
-  return {
-    income: totalIncome,
-    expenses: totalExpenses,
-    savings: 0,
-    balance: totalIncome - totalExpenses,
-  };
+  return computeSummary(sections, debtDTOs);
 }

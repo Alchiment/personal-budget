@@ -20,7 +20,7 @@ interface DashboardContainerProps {
 }
 
 function DashboardContent() {
-  const { sections, summary, addSection } = useDashboardContext();
+  const { sections, summary, addSection, addIncomeSection } = useDashboardContext();
 
   return (
     <DashboardTemplate 
@@ -31,14 +31,24 @@ function DashboardContent() {
               <SectionContainer />
             </SectionProvider>
           ))}
-          <Button 
-            variant="ghost" 
-            className="w-full border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-8 text-slate-400 hover:text-slate-600 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/50 flex flex-col items-center justify-center gap-2 transition-all"
-            onClick={addSection}
-          >
-            <Icon name="add_circle" className="text-3xl opacity-50" />
-            <span className="font-medium">Agregar Nueva Sección</span>
-          </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <Button 
+              variant="ghost" 
+              className="w-full border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl p-8 text-slate-400 hover:text-slate-600 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/50 flex flex-col items-center justify-center gap-2 transition-all"
+              onClick={addSection}
+            >
+              <Icon name="add_circle" className="text-3xl opacity-50" />
+              <span className="font-medium">Agregar Sección de Egresos</span>
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="w-full border-2 border-dashed border-yellow-200 dark:border-yellow-800/50 rounded-xl p-8 text-yellow-500 hover:text-yellow-600 hover:border-yellow-300 dark:hover:border-yellow-700 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 flex flex-col items-center justify-center gap-2 transition-all"
+              onClick={addIncomeSection}
+            >
+              <Icon name="payments" className="text-3xl opacity-50" />
+              <span className="font-medium">Agregar Sección de Ingresos</span>
+            </Button>
+          </div>
         </>
       }
       sidebar={

@@ -40,6 +40,7 @@ async function syncSection(section: SectionDTO): Promise<SectionDTO> {
         title: section.title,
         icon: section.icon,
         type: section.type,
+        isIncome: section.isIncome,
         actionLabel: section.action?.label,
       }),
     });
@@ -49,6 +50,7 @@ async function syncSection(section: SectionDTO): Promise<SectionDTO> {
       body: JSON.stringify({
         title: section.title,
         icon: section.icon,
+        isIncome: section.isIncome,
         actionLabel: section.action?.label,
       }),
     });

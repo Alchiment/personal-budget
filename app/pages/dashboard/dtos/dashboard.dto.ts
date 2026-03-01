@@ -15,8 +15,8 @@ export type DebtCardType = 'credit_card';
 
 export interface SectionItemInterface {
   id: string;
-  name: string;
-  amount: number;
+  name: string | null;
+  amount: number | null;
   variant?: SectionItemVariantType;
 }
 
@@ -25,6 +25,8 @@ export interface SectionInterface {
   title: string;
   icon: string;
   type: SectionLayoutType;
+  /** Whether this section contributes to income. false = expense section. */
+  isIncome: boolean;
   total?: number;
   items: SectionItemInterface[];
   action?: {

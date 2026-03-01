@@ -24,6 +24,7 @@ function toSectionDTO(row: {
   title: string;
   icon: string;
   type: string;
+  isIncome: boolean;
   total: number;
   actionLabel: string | null;
   items: { id: string; name: string; amount: number; variant: string | null }[];
@@ -33,6 +34,7 @@ function toSectionDTO(row: {
     title: row.title,
     icon: row.icon,
     type: row.type.toLowerCase() as SectionLayoutType,
+    isIncome: row.isIncome,
     total: row.total,
     action: row.actionLabel ? { label: row.actionLabel } : undefined,
     items: row.items.map(toSectionItemDTO),
@@ -63,13 +65,14 @@ export async function getSectionsByUser(
 export async function createSection(
   db: PrismaClient,
   userId: string,
-  data: { title: string; icon: string; type: SectionLayoutType; actionLabel?: string; order?: number }
+  data: { title: string; icon: string; type: SectionLayoutType; isIncome?: boolean; actionLabel?: string; order?: number }
 ): Promise<SectionDTO> {
   const row = await db.section.create({
     data: {
       title: data.title,
       icon: data.icon,
       type: data.type === 'simple_list' ? 'SIMPLE_LIST' : 'SUMMARY_LIST',
+      isIncome: data.isIncome ?? false,
       actionLabel: data.actionLabel,
       order: data.order ?? 0,
       userId,
@@ -84,7 +87,7 @@ export async function updateSection(
   db: PrismaClient,
   sectionId: string,
   userId: string,
-  data: Partial<{ title: string; icon: string; actionLabel: string; order: number; total: number }>
+  data: Partial<{ title: string; icon: string; isIncome: boolean; actionLabel: string; order: number; total: number }>
 ): Promise<SectionDTO> {
   const row = await db.section.update({
     where: { id: sectionId, userId },

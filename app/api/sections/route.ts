@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     const { userId } = resolveUser(request);
     const body = await request.json();
 
-    const { title, icon, type, actionLabel, order } = body;
+    const { title, icon, type, isIncome, actionLabel, order } = body;
     if (!title || !icon || !type) {
       return NextResponse.json({ error: 'title, icon and type are required' }, { status: 400 });
     }
@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
       title,
       icon,
       type: type as SectionLayoutType,
+      isIncome: isIncome ?? false,
       actionLabel,
       order,
     });

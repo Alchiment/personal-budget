@@ -6,6 +6,7 @@ import { DashboardContextInterface } from '../dtos/dashboard-context.dto';
 import { ConfirmModal } from '../../../components/molecules/ConfirmModal';
 import { createTmpId } from '../utils/temp-id.util';
 import { syncSections, syncDebts } from '../services/dashboardSaveService';
+import { computeSummary } from '../utils/compute-summary.util';
 
 export const DashboardContext = createContext<DashboardContextInterface | undefined>(undefined);
 
@@ -59,28 +60,7 @@ export function DashboardProvider({
 
 
   useEffect(() => {
-    let totalIncome = 0;
-    let totalExpenses = 0;
-
-    sections.forEach((section, index) => {
-      const sectionTotal = section.items.reduce((acc, item) => acc + item.amount, 0);
-      if (index === 0 && section.type === 'simple_list') {
-        totalIncome += sectionTotal;
-      } else {
-        totalExpenses += sectionTotal;
-      }
-    });
-
-    const totalDebts = debts.reduce((acc, debt) => acc + debt.amount, 0);
-    totalExpenses += totalDebts;
-
-    setSummary({
-      income: totalIncome,
-      expenses: totalExpenses,
-      savings: 0,
-      balance: totalIncome - totalExpenses,
-    });
-    // handleAutoSave(5);
+    setSummary(computeSummary(sections, debts));
   }, [sections, debts]);
   useEffect(() => {
     if (!isMounted.current) return;
@@ -103,10 +83,10 @@ export function DashboardProvider({
   // Done
   const addSectionItem = useCallback((sectionId: string) => {
     const section = sections.find(s => s.id === sectionId);
-    const variant = section?.type === 'simple_list' ? 'income' : 'neutral';
+    const variant = section?.isIncome ? 'income' : 'neutral';
     const tmpId = createTmpId();
 
-    const newItem: SectionItemDTO = { id: tmpId, name: 'Nuevo Item', amount: 0, variant };
+    const newItem: SectionItemDTO = { id: tmpId, name: null, amount: null, variant };
 
     setSections(prev => prev.map(s =>
       s.id === sectionId ? { ...s, items: [...s.items, newItem] } : s
@@ -146,6 +126,23 @@ export function DashboardProvider({
       title: 'Nueva Sección',
       icon: 'list',
       type: 'summary_list',
+      isIncome: false,
+      action: { label: 'Agregar' },
+      items: [],
+      total: 0,
+    };
+
+    setSections(prev => [...prev, newSection]);
+  }, [sections]);
+
+  const addIncomeSection = useCallback(() => {
+    const tmpId = createTmpId();
+    const newSection: SectionDTO = {
+      id: tmpId,
+      title: 'Nueva Sección de Ingresos',
+      icon: 'payments',
+      type: 'simple_list',
+      isIncome: true,
       action: { label: 'Agregar' },
       items: [],
       total: 0,
@@ -261,6 +258,7 @@ export function DashboardProvider({
       updateDebtDetail,
       updateDebt,
       addSection,
+      addIncomeSection,
       addDebt,
       updateSection,
       removeSection,

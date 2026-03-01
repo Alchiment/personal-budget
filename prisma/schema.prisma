@@ -63,6 +63,9 @@ model Section {
   /// Section type (simple_list or summary_list)
   type SectionType @default(SIMPLE_LIST)
 
+  /// Whether this section contributes to income (true) or expenses (false)
+  isIncome Boolean @default(false)
+
   /// Total amount in this section (used for summary_list)
   total Float @default(0)
 
