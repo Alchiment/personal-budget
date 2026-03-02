@@ -9,6 +9,7 @@ import { SectionHeader } from '@/app/components/molecules/SectionHeader';
 import { SectionDTO, SectionItemDTO } from '../../dtos/dashboard.dto';
 import { formatCurrency } from '@/app/lib/format';
 import { cn } from '@/app/lib/utils';
+import { SectionLayoutEnum } from '../../enums/SectionLayoutEnum';
 
 interface SectionTableProps {
   section: SectionDTO;
@@ -70,7 +71,7 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSecti
         <table className="w-full text-left border-collapse">
           <tbody>
             {/* Render Total Row if it's a summary_list */}
-            {section.type === 'summary_list' && section.total !== undefined && (
+            {section.type === SectionLayoutEnum.SUMMARY_LIST && section.total !== undefined && (
               <tr className="bg-slate-50/50 dark:bg-slate-800/30">
                 <td className="p-4 font-semibold">Total Actual</td>
                 <td className="p-4 text-right">
@@ -85,7 +86,7 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSecti
             {/* Render Items */}
             {section.items.map((item, index) => {
               const isLast = index === section.items.length - 1;
-              const isExpenseRow = section.type === 'summary_list';
+              const isExpenseRow = section.type === SectionLayoutEnum.SUMMARY_LIST;
               
               return (
                 <tr 
@@ -118,10 +119,10 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSecti
                         />
                       </div>
                     ) : (
-                      section.type === 'simple_list' ? (
+                      section.type === SectionLayoutEnum.SIMPLE_LIST ? (
                         <Badge 
                           variant={item.variant || ((item.amount ?? 0) > 0 ? 'income' : 'neutral')}
-                          className={item.amount ?? 0 < 0 ? "text-red-500 bg-transparent" : ""}
+                          className={(item.amount ?? 0) < 0 && !section.isIncome ? "text-red-500 bg-transparent" : ""}
                         >
                            {formatCurrency(item.amount ?? 0)}
                         </Badge>

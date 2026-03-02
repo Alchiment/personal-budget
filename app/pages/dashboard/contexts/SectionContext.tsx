@@ -5,6 +5,7 @@ import { SectionDTO, SectionItemDTO } from '../dtos/dashboard.dto';
 import { useDashboardContext } from '../hooks/useDashboardContext';
 import { SectionContextInterface } from '../dtos/section-context.dto';
 import { SectionProviderProps } from '../dtos/section.dto';
+import { SectionLayoutEnum } from '../enums/SectionLayoutEnum';
 
 
 export const SectionContext = createContext<SectionContextInterface | undefined>(undefined);
@@ -22,7 +23,7 @@ export function SectionProvider({ children, sectionId }: SectionProviderProps) {
       return undefined;
     }
 
-    const total = section.type === 'summary_list' 
+    const total = section.type === SectionLayoutEnum.SUMMARY_LIST 
       ? section.items.reduce((acc, item) => acc + (item.amount || 0), 0)
       : (section.total || 0);
 

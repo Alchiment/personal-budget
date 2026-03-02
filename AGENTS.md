@@ -221,11 +221,14 @@ export function DashboardTemplate({
 
 Sample of interface and dto:
 ```typescript
+import { SectionLayoutEnum } from '../enums/SectionLayoutEnum';
+import { SectionLayoutType } from '../dtos/dashboard.dto';
+
 export interface SectionInterface {
   id: string;
   title: string;
   icon: string;
-  type: 'simple_list' | 'summary_list';
+  type: SectionLayoutType;
   total?: number;
   items: SectionItemDTO[];
   action?: {
@@ -250,13 +253,33 @@ export class SectionDTO implements SectionInterface {
 - Constants should follow the `UPPER_SNAKE_CASE` naming convention.
 - If constant is a object, nested values should follow the `UPPER_SNAKE_CASE` naming convention.
 - Enums should follow the `PascalCase` naming convention finished with `Enum`.
+- When using string literal types, define them as enums first, then create a type that references the enum values.
 
-Sample of type (same way for consts and enums):
+Sample of enum and type working together:
 ```typescript
-export type SectionType = 'simple_list' | 'summary_list';
+// enums/SectionLayoutEnum.ts
+export enum SectionLayoutEnum {
+  SIMPLE_LIST = 'simple_list',
+  SUMMARY_LIST = 'summary_list',
+}
+
+// dtos/dashboard.dto.ts
+import { SectionLayoutEnum } from '../enums/SectionLayoutEnum';
+
+export type SectionLayoutType = `${SectionLayoutEnum}`;
 
 export class SectionDTO implements SectionInterface {
-  type: SectionType;
+  type: SectionLayoutType;
+}
+```
+
+Usage in components:
+```typescript
+import { SectionLayoutEnum } from '../enums/SectionLayoutEnum';
+
+// Using enum values instead of plain strings
+if (section.type === SectionLayoutEnum.SIMPLE_LIST) {
+  // ...
 }
 ```
 

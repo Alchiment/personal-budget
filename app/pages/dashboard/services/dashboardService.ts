@@ -1,5 +1,6 @@
 import { PrismaClient } from '@/app/generated/prisma/client';
 import { SectionDTO, DebtCardDTO, SectionItemDTO, DebtItemDTO, SectionLayoutType, SectionItemVariantType, DebtCardType, DebtColorType } from '../dtos/dashboard.dto';
+import { SectionLayoutEnum } from '../enums/SectionLayoutEnum';
 
 function isTmpId(id: string): boolean {
   return id.startsWith('tmp_');
@@ -106,7 +107,7 @@ async function syncSection(
       data: {
         title: section.title,
         icon: section.icon,
-        type: section.type === 'simple_list' ? 'SIMPLE_LIST' : 'SUMMARY_LIST',
+        type: section.type === SectionLayoutEnum.SIMPLE_LIST ? 'SIMPLE_LIST' : 'SUMMARY_LIST',
         isIncome: section.isIncome ?? false,
         actionLabel: section.action?.label,
         order: section.total ?? 0,

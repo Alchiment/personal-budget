@@ -7,6 +7,7 @@ import { ConfirmModal } from '../../../components/molecules/ConfirmModal';
 import { createTmpId } from '../utils/temp-id.util';
 import { saveDashboard } from '../services/dashboardSaveService';
 import { computeSummary } from '../utils/compute-summary.util';
+import { SectionLayoutEnum } from '../enums/SectionLayoutEnum';
 
 export const DashboardContext = createContext<DashboardContextInterface | undefined>(undefined);
 
@@ -98,7 +99,7 @@ export function DashboardProvider({
       id: tmpId,
       title: 'Nueva Sección',
       icon: 'list',
-      type: 'summary_list',
+      type: SectionLayoutEnum.SUMMARY_LIST,
       isIncome: false,
       action: { label: 'Agregar' },
       items: [],
@@ -114,7 +115,7 @@ export function DashboardProvider({
       id: tmpId,
       title: 'Nueva Sección de Ingresos',
       icon: 'payments',
-      type: 'simple_list',
+      type: SectionLayoutEnum.SIMPLE_LIST,
       isIncome: true,
       action: { label: 'Agregar' },
       items: [],

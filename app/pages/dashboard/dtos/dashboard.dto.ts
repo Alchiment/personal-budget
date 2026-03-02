@@ -3,9 +3,10 @@
 // ============================================================================
 
 import { ReactNode } from "react";
+import { SectionLayoutEnum } from "../enums/SectionLayoutEnum";
 
 export type SectionItemVariantType = 'income' | 'expense' | 'neutral' | 'default';
-export type SectionLayoutType = 'simple_list' | 'summary_list';
+export type SectionLayoutType = `${SectionLayoutEnum}`;
 export type DebtColorType = 'purple' | 'blue';
 export type DebtCardType = 'credit_card';
 

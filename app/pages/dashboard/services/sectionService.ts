@@ -1,5 +1,6 @@
 import { PrismaClient } from '@/app/generated/prisma/client';
 import { SectionDTO, SectionItemDTO, SectionLayoutType, SectionItemVariantType } from '../dtos/dashboard.dto';
+import { SectionLayoutEnum } from '../enums/SectionLayoutEnum';
 
 // ============================================================================
 // Helpers
@@ -71,7 +72,7 @@ export async function createSection(
     data: {
       title: data.title,
       icon: data.icon,
-      type: data.type === 'simple_list' ? 'SIMPLE_LIST' : 'SUMMARY_LIST',
+      type: data.type === SectionLayoutEnum.SIMPLE_LIST ? 'SIMPLE_LIST' : 'SUMMARY_LIST',
       isIncome: data.isIncome ?? false,
       actionLabel: data.actionLabel,
       order: data.order ?? 0,
