@@ -301,29 +301,90 @@ For features requiring bulk save operations (parent + children entities):
    - Single POST endpoint receiving all data
    - Delegates to server-side service
 
-### Context Error Handling Pattern
-For managing save errors in React Context:
+### Alert Context Pattern
+For displaying global alerts (errors, success, warnings, info) that need to be visible regardless of scroll position:
 
-1. Add state and callback in context:
+1. **Create AlertContext** (`app/contexts/AlertContext.tsx`):
 ```typescript
-const [saveError, setSaveError] = useState<string | null>(null);
-const clearSaveError = useCallback(() => setSaveError(null), []);
+'use client';
+
+import React, { createContext, useState, useCallback, useContext } from 'react';
+import { AlertBannerVariant } from '../components/molecules/AlertBanner';
+
+interface AlertState {
+  message: string;
+  variant: AlertBannerVariant;
+}
+
+interface AlertContextValue {
+  alert: AlertState | null;
+  showAlert: (message: string, variant?: AlertBannerVariant) => void;
+  clearAlert: () => void;
+}
+
+const AlertContext = createContext<AlertContextValue | undefined>(undefined);
+
+export function AlertProvider({ children }: { children: React.ReactNode }) {
+  const [alert, setAlert] = useState<AlertState | null>(null);
+
+  const showAlert = useCallback((message: string, variant: AlertBannerVariant = 'error') => {
+    setAlert({ message, variant });
+  }, []);
+
+  const clearAlert = useCallback(() => {
+    setAlert(null);
+  }, []);
+
+  return (
+    <AlertContext.Provider value={{ alert, showAlert, clearAlert }}>
+      {children}
+    </AlertContext.Provider>
+  );
+}
+
+export function useAlert() {
+  const context = useContext(AlertContext);
+  if (!context) {
+    throw new Error('useAlert must be used within an AlertProvider');
+  }
+  return context;
+}
 ```
 
-2. Expose in context value:
+2. **Wrap root component with AlertProvider** (in container):
 ```typescript
-<DashboardContext.Provider value={{
-  saveError,
-  clearSaveError,
-  // ...
-}}>
+<AlertProvider>
+  <DashboardProvider ...>
+    <DashboardContent />
+  </DashboardProvider>
+</AlertProvider>
 ```
 
-3. Display in template using AlertBanner:
+3. **Consume in Navbar** to display alerts at top of page:
 ```typescript
-{saveError && (
-  <AlertBanner message={saveError} onClose={clearSaveError} />
+const { alert, clearAlert } = useAlert();
+
+// In render:
+{alert && (
+  <div className="sticky top-0 z-50">
+    <nav>...</nav>
+    {alert && (
+      <div className="bg-card border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-6 py-2">
+          <AlertBanner message={alert.message} variant={alert.variant} onClose={clearAlert} />
+        </div>
+      </div>
+    )}
+  </div>
 )}
+```
+
+4. **Use in any context/service** to show errors:
+```typescript
+const { showAlert } = useAlert();
+
+// When an error occurs:
+showAlert('Failed to save changes');
 ```
 
 ### Temporary ID Pattern
