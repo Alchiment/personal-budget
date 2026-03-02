@@ -14,6 +14,7 @@ interface DebtCardProps {
   onRemoveDetail?: (debtId: string, detailId: string) => void;
   onUpdateDetail?: (debtId: string, detailId: string, updates: Partial<DebtItemDTO>) => void;
   onUpdateDebt?: (debtId: string, updates: Partial<DebtCardDTO>) => void;
+  onRemoveDebt?: (debtId: string) => void;
 }
 
 export function DebtCard({
@@ -21,7 +22,8 @@ export function DebtCard({
   onAddDetail,
   onRemoveDetail,
   onUpdateDetail,
-  onUpdateDebt
+  onUpdateDebt,
+  onRemoveDebt
 }: DebtCardProps) {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -105,13 +107,28 @@ export function DebtCard({
                         <Icon name={isEditing ? "check" : "edit"} className="text-sm" />
                     </Button>
                 )}
+                
+                {onRemoveDebt && (
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className={cn(
+                            "h-6 w-6 rounded-full transition-colors",
+                            isEditing ? "bg-red-500/10 text-red-500 hover:bg-red-500/20" : "text-slate-400 hover:text-slate-600"
+                        )}
+                        onClick={() => onRemoveDebt(debt.id)}
+                        title="Eliminar tarjeta"
+                    >
+                        <Icon name="delete" className="text-sm" />
+                    </Button>
+                )}
               </div>
             </div>
             
             {(debt.details && debt.details.length > 0) ? (
               <div className="space-y-2">
                   {debt.details.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center text-sm gap-2 group">
+                  <div key={item.id} className="flex justify-between items-center text-sm gap-2">
                       {isEditing && onUpdateDetail ? (
                           <Input 
                               value={item.name} 
@@ -138,7 +155,7 @@ export function DebtCard({
                               <Button 
                                   variant="ghost" 
                                   size="icon" 
-                                  className="h-7 w-7 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  className="h-7 w-7 text-slate-400 hover:text-red-500"
                                   onClick={() => onRemoveDetail(debt.id, item.id)}
                               >
                                   <Icon name="delete" className="text-base" />

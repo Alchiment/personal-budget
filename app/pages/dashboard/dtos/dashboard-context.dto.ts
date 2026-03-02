@@ -19,4 +19,6 @@ export interface DashboardContextInterface {
   updateSection: (sectionId: string, updates: Partial<SectionDTO>) => void;
   removeSection: (sectionId: string) => void;
   requestRemoveSection: (sectionId: string) => void;
+  removeDebt: (debtId: string) => void;
+  requestRemoveDebt: (debtId: string) => void;
 }

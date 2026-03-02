@@ -11,6 +11,7 @@ interface DebtListProps {
   onRemoveDetail?: (debtId: string, detailId: string) => void;
   onUpdateDetail?: (debtId: string, detailId: string, updates: Partial<DebtItemDTO>) => void;
   onUpdateDebt?: (debtId: string, updates: Partial<DebtCardDTO>) => void;
+  onRemoveDebt?: (debtId: string) => void;
   onAddDebt?: () => void;
 }
 
@@ -20,6 +21,7 @@ export function DebtList({
   onRemoveDetail,
   onUpdateDetail,
   onUpdateDebt,
+  onRemoveDebt,
   onAddDebt
 }: DebtListProps) {
   return (
@@ -34,6 +36,7 @@ export function DebtList({
             onRemoveDetail={onRemoveDetail}
             onUpdateDetail={onUpdateDetail}
             onUpdateDebt={onUpdateDebt}
+            onRemoveDebt={onRemoveDebt}
           />
         ))}
         {onAddDebt && (

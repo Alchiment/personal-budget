@@ -11,7 +11,8 @@ export function DebtsContainer() {
     removeDebtDetail, 
     updateDebtDetail,
     updateDebt,
-    addDebt
+    addDebt,
+    requestRemoveDebt
   } = useDashboardContext();
 
   return (
@@ -21,6 +22,7 @@ export function DebtsContainer() {
       onRemoveDetail={removeDebtDetail}
       onUpdateDetail={updateDebtDetail}
       onUpdateDebt={updateDebt}
+      onRemoveDebt={requestRemoveDebt}
       onAddDebt={addDebt}
     />
   );

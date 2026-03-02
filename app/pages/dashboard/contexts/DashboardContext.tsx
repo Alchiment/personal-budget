@@ -21,6 +21,7 @@ export function DashboardProvider({
   const [debts, setDebts] = useState<DebtCardDTO[]>(initialDebts);
   const [summary, setSummary] = useState<SummaryDTO>(initialSummary);
   const [pendingRemoveSectionId, setPendingRemoveSectionId] = useState<string | null>(null);
+  const [pendingRemoveDebtId, setPendingRemoveDebtId] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const timerAutoSave = useRef<NodeJS.Timeout | null>(null);
   const sectionsRef = useRef<SectionDTO[]>(sections);
@@ -222,6 +223,25 @@ export function DashboardProvider({
     if (updates.color !== undefined) payload.color = updates.color;
   }, [debts]);
 
+  const removeDebt = useCallback((debtId: string) => {
+    setDebts(prev => prev.filter(d => d.id !== debtId));
+  }, []);
+
+  const requestRemoveDebt = useCallback((debtId: string) => {
+    setPendingRemoveDebtId(debtId);
+  }, []);
+
+  const confirmRemoveDebt = useCallback(() => {
+    if (pendingRemoveDebtId) {
+      removeDebt(pendingRemoveDebtId);
+    }
+    setPendingRemoveDebtId(null);
+  }, [pendingRemoveDebtId, removeDebt]);
+
+  const cancelRemoveDebt = useCallback(() => {
+    setPendingRemoveDebtId(null);
+  }, []);
+
   return (
     <DashboardContext.Provider value={{
       sections,
@@ -242,6 +262,8 @@ export function DashboardProvider({
       updateSection,
       removeSection,
       requestRemoveSection,
+      removeDebt,
+      requestRemoveDebt,
     }}>
       {children}
       <ConfirmModal
@@ -250,6 +272,13 @@ export function DashboardProvider({
         description="¿Estás seguro de que deseas eliminar esta sección? Esta acción no se puede deshacer."
         onConfirm={confirmRemoveSection}
         onCancel={cancelRemoveSection}
+      />
+      <ConfirmModal
+        open={pendingRemoveDebtId !== null}
+        title="Eliminar tarjeta"
+        description="¿Estás seguro de que deseas eliminar esta tarjeta? Esta acción no se puede deshacer."
+        onConfirm={confirmRemoveDebt}
+        onCancel={cancelRemoveDebt}
       />
     </DashboardContext.Provider>
   );
