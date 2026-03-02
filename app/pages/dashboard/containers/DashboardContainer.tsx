@@ -20,7 +20,7 @@ interface DashboardContainerProps {
 }
 
 function DashboardContent() {
-  const { sections, summary, addSection, addIncomeSection } = useDashboardContext();
+  const { sections, summary, addSection, addIncomeSection, saveError, clearSaveError } = useDashboardContext();
 
   return (
     <DashboardTemplate 
@@ -58,6 +58,8 @@ function DashboardContent() {
           <ExportCard />
         </>
       }
+      saveError={saveError}
+      clearSaveError={clearSaveError}
     />
   );
 }
