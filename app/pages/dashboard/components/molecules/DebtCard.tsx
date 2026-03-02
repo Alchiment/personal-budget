@@ -46,13 +46,13 @@ export function DebtCard({
             {isEditing && onUpdateDebt ? (
               <>
                   <Input 
-                      value={debt.name} 
+                      value={debt.name ?? ''} 
                       onChange={(e) => onUpdateDebt(debt.id, { name: e.target.value })}
                       className="font-medium h-7 w-full"
                       placeholder="Nombre Tarjeta"
                   />
                   <Input 
-                      value={debt.subtitle} 
+                      value={debt.subtitle ?? ''} 
                       onChange={(e) => onUpdateDebt(debt.id, { subtitle: e.target.value })}
                       className="text-xs text-slate-500 h-6 w-full"
                       placeholder="Subtítulo"
@@ -71,7 +71,7 @@ export function DebtCard({
                "font-mono font-bold block", 
                debt.amount === 0 ? "text-slate-400" : "text-red-500"
              )}>
-               {formatCurrency(debt.amount)}
+               {formatCurrency((debt.amount ?? 0))}
              </span>
           </div>
         </div>
@@ -131,7 +131,7 @@ export function DebtCard({
                   <div key={item.id} className="flex justify-between items-center text-sm gap-2">
                       {isEditing && onUpdateDetail ? (
                           <Input 
-                              value={item.name} 
+                              value={item.name ?? ''} 
                               onChange={(e) => onUpdateDetail(debt.id, item.id, { name: e.target.value })}
                               className="h-7 text-slate-600 dark:text-slate-400 flex-1"
                               placeholder="Concepto"
@@ -143,12 +143,12 @@ export function DebtCard({
                       <div className="flex items-center gap-2">
                           {isEditing && onUpdateDetail ? (
                               <CurrencyInput 
-                                  value={item.amount} 
+                                  value={item.amount ?? 0} 
                                   onChange={(val) => onUpdateDetail(debt.id, item.id, { amount: val })}
                                   className="w-24 h-7 font-mono text-right"
                               />
                           ) : (
-                              <span className="font-mono">{formatCurrency(item.amount)}</span>
+                              <span className="font-mono">{formatCurrency(item.amount ?? 0)}</span>
                           )}
                           
                           {isEditing && onRemoveDetail && (

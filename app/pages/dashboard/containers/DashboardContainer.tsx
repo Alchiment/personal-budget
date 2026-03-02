@@ -12,6 +12,7 @@ import { SectionContainer } from './SectionContainer';
 import { Button } from '@/app/components/atoms/Button';
 import { Icon } from '@/app/components/atoms/Icon';
 import { useDashboardContext } from '../hooks/useDashboardContext';
+import { AlertProvider } from '@/app/contexts/AlertContext';
 
 interface DashboardContainerProps {
   sectionsData: SectionDTO[];
@@ -20,7 +21,7 @@ interface DashboardContainerProps {
 }
 
 function DashboardContent() {
-  const { sections, summary, addSection, addIncomeSection, saveError, clearSaveError } = useDashboardContext();
+  const { sections, summary, addSection, addIncomeSection } = useDashboardContext();
 
   return (
     <DashboardTemplate 
@@ -58,20 +59,20 @@ function DashboardContent() {
           <ExportCard />
         </>
       }
-      saveError={saveError}
-      clearSaveError={clearSaveError}
     />
   );
 }
 
 export function DashboardContainer({ sectionsData, summary, debts }: DashboardContainerProps) {
   return (
-    <DashboardProvider 
-      initialSections={sectionsData} 
-      initialDebts={debts} 
-      initialSummary={summary}
-    >
-      <DashboardContent />
-    </DashboardProvider>
+    <AlertProvider>
+      <DashboardProvider 
+        initialSections={sectionsData} 
+        initialDebts={debts} 
+        initialSummary={summary}
+      >
+        <DashboardContent />
+      </DashboardProvider>
+    </AlertProvider>
   );
 }

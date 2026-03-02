@@ -8,6 +8,7 @@ import { createTmpId } from '../utils/temp-id.util';
 import { saveDashboard } from '../services/dashboardSaveService';
 import { computeSummary } from '../utils/compute-summary.util';
 import { SectionLayoutEnum } from '../enums/SectionLayoutEnum';
+import { useAlert } from '@/app/contexts/AlertContext';
 
 export const DashboardContext = createContext<DashboardContextInterface | undefined>(undefined);
 
@@ -22,7 +23,7 @@ export function DashboardProvider({
   const [summary, setSummary] = useState<SummaryDTO>(initialSummary);
   const [pendingRemoveSectionId, setPendingRemoveSectionId] = useState<string | null>(null);
   const [pendingRemoveDebtId, setPendingRemoveDebtId] = useState<string | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const { showAlert } = useAlert();
   const timerAutoSave = useRef<NodeJS.Timeout | null>(null);
   const sectionsRef = useRef<SectionDTO[]>(sections);
   const debtsRef = useRef<DebtCardDTO[]>(debts);
@@ -39,14 +40,13 @@ export function DashboardProvider({
 
     timerAutoSave.current = setTimeout(async () => {
       try {
-        setSaveError(null);
         await saveDashboard(sectionsRef.current, debtsRef.current);
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to save changes';
-        setSaveError(message);
+        showAlert(message);
       }
     }, time * 1000);
-  }, []);
+  }, [showAlert]);
 
 
 
@@ -165,7 +165,7 @@ export function DashboardProvider({
 
   const addDebtDetail = useCallback((debtId: string) => {
     const tmpId = createTmpId();
-    const newDetail: DebtItemDTO = { id: tmpId, name: 'Nueva Compra', amount: 0 };
+    const newDetail: DebtItemDTO = { id: tmpId, name: '', amount: 0 };
 
     setDebts(prev => prev.map(d => {
       if (d.id !== debtId) return d;
@@ -200,8 +200,8 @@ export function DashboardProvider({
     const tmpId = createTmpId();
     const newDebt: DebtCardDTO = {
       id: tmpId,
-      name: 'Nueva Tarjeta',
-      subtitle: 'Saldo pendiente',
+      name: '',
+      subtitle: '',
       amount: 0,
       type: 'credit_card',
       color: 'blue',
@@ -210,17 +210,13 @@ export function DashboardProvider({
     setDebts(prev => [...prev, newDebt]);
   }, []);
 
-  const clearSaveError = useCallback(() => {
-    setSaveError(null);
-  }, []);
-
   const updateDebt = useCallback((debtId: string, updates: Partial<DebtCardDTO>) => {
     setDebts(prev => prev.map(d => d.id === debtId ? { ...d, ...updates } : d));
 
     const payload: { name?: string; subtitle?: string; color?: typeof updates.color } = {};
-    if (updates.name !== undefined) payload.name = updates.name;
-    if (updates.subtitle !== undefined) payload.subtitle = updates.subtitle;
-    if (updates.color !== undefined) payload.color = updates.color;
+    if (updates.name) payload.name = updates.name;
+    if (updates.subtitle) payload.subtitle = updates.subtitle;
+    if (updates.color) payload.color = updates.color;
   }, [debts]);
 
   const removeDebt = useCallback((debtId: string) => {
@@ -247,8 +243,6 @@ export function DashboardProvider({
       sections,
       debts,
       summary,
-      saveError,
-      clearSaveError,
       addSectionItem,
       removeSectionItem,
       updateSectionItem,

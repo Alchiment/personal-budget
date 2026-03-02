@@ -4,8 +4,6 @@ export interface DashboardContextInterface {
   sections: SectionDTO[];
   debts: DebtCardDTO[];
   summary: SummaryDTO;
-  saveError: string | null;
-  clearSaveError: () => void;
   addSectionItem: (sectionId: string) => void;
   removeSectionItem: (sectionId: string, itemId: string) => void;
   updateSectionItem: (sectionId: string, itemId: string, updates: Partial<SectionItemDTO>) => void;
