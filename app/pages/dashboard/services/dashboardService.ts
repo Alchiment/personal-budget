@@ -12,6 +12,7 @@ function toSectionDTO(row: {
   icon: string;
   type: string;
   isIncome: boolean;
+  order: number;
   total: number;
   actionLabel: string | null;
   items: { id: string; name: string; amount: number; variant: string | null }[];
@@ -22,6 +23,7 @@ function toSectionDTO(row: {
     icon: row.icon,
     type: row.type.toLowerCase() as SectionLayoutType,
     isIncome: row.isIncome,
+    order: row.order,
     total: row.total,
     action: row.actionLabel ? { label: row.actionLabel } : undefined,
     items: row.items.map((item) => ({
@@ -40,6 +42,7 @@ function toDebtCardDTO(row: {
   amount: number;
   type: string;
   color: string;
+  order: number;
   details: { id: string; name: string; amount: number }[];
 }): DebtCardDTO {
   return {
@@ -49,6 +52,7 @@ function toDebtCardDTO(row: {
     amount: row.amount,
     type: row.type as DebtCardType,
     color: row.color as DebtColorType,
+    order: row.order,
     details: row.details.map((detail) => ({
       id: detail.id,
       name: detail.name,
@@ -152,6 +156,7 @@ async function syncSection(
     icon: persistedSection.icon,
     type: persistedSection.type.toLowerCase() as SectionLayoutType,
     isIncome: persistedSection.isIncome,
+    order: persistedSection.order,
     total: persistedSection.total,
     action: persistedSection.actionLabel ? { label: persistedSection.actionLabel } : undefined,
     items: syncedItems,
@@ -192,12 +197,18 @@ async function syncDebt(
   let persistedDebt;
 
   if (isTmpId(debt.id)) {
+    const maxOrder = await db.debt.aggregate({
+      where: { userId },
+      _max: { order: true },
+    });
+
     const row = await db.debt.create({
       data: {
         name: debt.name,
         subtitle: debt.subtitle,
         type: debt.type ?? 'credit_card',
         color: debt.color ?? 'blue',
+        order: debt.order ?? (maxOrder._max.order ?? -1) + 1,
         userId,
       },
       include: { details: true },

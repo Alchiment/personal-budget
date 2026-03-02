@@ -26,6 +26,7 @@ function toSectionDTO(row: {
   icon: string;
   type: string;
   isIncome: boolean;
+  order: number;
   total: number;
   actionLabel: string | null;
   items: { id: string; name: string; amount: number; variant: string | null }[];
@@ -36,6 +37,7 @@ function toSectionDTO(row: {
     icon: row.icon,
     type: row.type.toLowerCase() as SectionLayoutType,
     isIncome: row.isIncome,
+    order: row.order,
     total: row.total,
     action: row.actionLabel ? { label: row.actionLabel } : undefined,
     items: row.items.map(toSectionItemDTO),
@@ -68,6 +70,11 @@ export async function createSection(
   userId: string,
   data: { title: string; icon: string; type: SectionLayoutType; isIncome?: boolean; actionLabel?: string; order?: number }
 ): Promise<SectionDTO> {
+  const maxOrder = await db.section.aggregate({
+    where: { userId },
+    _max: { order: true },
+  });
+
   const row = await db.section.create({
     data: {
       title: data.title,
@@ -75,7 +82,7 @@ export async function createSection(
       type: data.type === SectionLayoutEnum.SIMPLE_LIST ? 'SIMPLE_LIST' : 'SUMMARY_LIST',
       isIncome: data.isIncome ?? false,
       actionLabel: data.actionLabel,
-      order: data.order ?? 0,
+      order: data.order ?? (maxOrder._max.order ?? -1) + 1,
       userId,
     },
     include: { items: true },

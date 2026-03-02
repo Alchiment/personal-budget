@@ -73,7 +73,7 @@ model Section {
   actionLabel String?
 
   /// Display order
-  order Int @default(0)
+  order Int
 
   /// Owner of this section
   userId String
@@ -137,6 +137,9 @@ model Debt {
 
   /// Visual color hint (purple, blue)
   color String @default("blue")
+
+  /// Display order
+  order Int
 
   /// Owner of this debt
   userId String

@@ -20,6 +20,7 @@ function toDebtCardDTO(row: {
   amount: number;
   type: string;
   color: string;
+  order: number;
   details: { id: string; name: string; amount: number }[];
 }): DebtCardDTO {
   return {
@@ -29,6 +30,7 @@ function toDebtCardDTO(row: {
     amount: row.amount,
     type: row.type as DebtCardType,
     color: row.color as DebtColorType,
+    order: row.order,
     details: row.details.map(toDebtItemDTO),
   };
 }
@@ -43,7 +45,7 @@ export async function getDebtsByUser(
 ): Promise<DebtCardDTO[]> {
   const rows = await db.debt.findMany({
     where: { userId },
-    orderBy: { createdAt: 'asc' },
+    orderBy: { order: 'asc' },
     include: { details: true },
   });
 
@@ -57,8 +59,13 @@ export async function getDebtsByUser(
 export async function createDebt(
   db: PrismaClient,
   userId: string,
-  data: { name: string; subtitle: string; type?: DebtCardType; color?: DebtColorType }
+  data: { name: string; subtitle: string; type?: DebtCardType; color?: DebtColorType; order?: number }
 ): Promise<DebtCardDTO> {
+  const maxOrder = await db.debt.aggregate({
+    where: { userId },
+    _max: { order: true },
+  });
+
   const row = await db.debt.create({
     data: {
       name: data.name,
@@ -66,6 +73,7 @@ export async function createDebt(
       amount: 0,
       type: data.type ?? 'credit_card',
       color: data.color ?? 'blue',
+      order: data.order ?? (maxOrder._max.order ?? -1) + 1,
       userId,
     },
     include: { details: true },

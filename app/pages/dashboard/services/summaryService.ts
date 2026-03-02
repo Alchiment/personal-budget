@@ -27,6 +27,7 @@ export async function getSummaryByUser(
     icon: row.icon,
     type: row.type.toLowerCase() as SectionDTO['type'],
     isIncome: row.isIncome,
+    order: row.order,
     total: row.total,
     action: row.actionLabel ? { label: row.actionLabel } : undefined,
     items: row.items.map((item) => ({
@@ -44,6 +45,7 @@ export async function getSummaryByUser(
     amount: debt.amount,
     type: debt.type as 'credit_card',
     color: debt.color as 'purple' | 'blue',
+    order: debt.order,
   }));
 
   return computeSummary(sections, debtDTOs);

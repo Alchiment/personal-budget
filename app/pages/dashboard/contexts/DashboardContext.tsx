@@ -96,12 +96,14 @@ export function DashboardProvider({
 
   const addSection = useCallback(() => {
     const tmpId = createTmpId();
+    const maxOrder = sections.length > 0 ? Math.max(...sections.map(s => s.order)) : -1;
     const newSection: SectionDTO = {
       id: tmpId,
       title: 'Nueva Sección',
       icon: 'list',
       type: SectionLayoutEnum.SUMMARY_LIST,
       isIncome: false,
+      order: maxOrder + 1,
       action: { label: 'Agregar' },
       items: [],
       total: 0,
@@ -112,12 +114,14 @@ export function DashboardProvider({
 
   const addIncomeSection = useCallback(() => {
     const tmpId = createTmpId();
+    const maxOrder = sections.length > 0 ? Math.max(...sections.map(s => s.order)) : -1;
     const newSection: SectionDTO = {
       id: tmpId,
       title: 'Nueva Sección de Ingresos',
       icon: 'payments',
       type: SectionLayoutEnum.SIMPLE_LIST,
       isIncome: true,
+      order: maxOrder + 1,
       action: { label: 'Agregar' },
       items: [],
       total: 0,
@@ -198,6 +202,7 @@ export function DashboardProvider({
 
   const addDebt = useCallback(() => {
     const tmpId = createTmpId();
+    const maxOrder = debts.length > 0 ? Math.max(...debts.map(d => d.order)) : -1;
     const newDebt: DebtCardDTO = {
       id: tmpId,
       name: '',
@@ -205,6 +210,7 @@ export function DashboardProvider({
       amount: 0,
       type: 'credit_card',
       color: 'blue',
+      order: maxOrder + 1,
       details: [],
     };
     setDebts(prev => [...prev, newDebt]);

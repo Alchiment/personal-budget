@@ -28,6 +28,7 @@ export interface SectionInterface {
   type: SectionLayoutType;
   /** Whether this section contributes to income. false = expense section. */
   isIncome: boolean;
+  order: number;
   total?: number;
   items: SectionItemInterface[];
   action?: {
@@ -48,6 +49,7 @@ export interface DebtCardInterface {
   amount: number;
   type: DebtCardType;
   color: DebtColorType;
+  order: number;
   details?: DebtItemInterface[];
 }
 
