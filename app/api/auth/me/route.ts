@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getClient } from '@/app/lib/db';
-import { AuthService } from '@/app/lib/auth/auth.service';
+import { AuthService } from '@/app/pages/auth/services/auth.service';
 import { AuthErrorResponseDTO } from '@/app/pages/auth/dtos/auth.dto';
 import { verifyAccessToken, extractTokenFromHeader } from '@/app/lib/auth/jwt';
 

@@ -4,8 +4,8 @@
  */
 
 import { PrismaClient } from '@/app/generated/prisma/client';
-import { generateTokenPair, generateRefreshToken } from './jwt';
-import { hashPassword, verifyPassword, validatePasswordStrength, validateEmail } from './password';
+import { generateTokenPair, generateRefreshToken } from '../../../lib/auth/jwt';
+import { hashPassword, verifyPassword, validatePasswordStrength, validateEmail } from '../../../lib/auth/password';
 import { AuthTokenResponseDTO, AuthErrorResponseDTO } from '@/app/pages/auth/dtos/auth.dto';
 
 export class AuthService {
