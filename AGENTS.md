@@ -33,9 +33,16 @@ export async function GET(request: NextRequest) {
 
 ### Authentication
 Located in `app/lib/auth/`. JWT-based authentication with:
-- Access token (short-lived, in httpOnly cookie)
-- Refresh token (longer-lived, for token renewal)
+- Access token (15 minutes, in httpOnly cookie)
+- Refresh token (7 days, in httpOnly cookie)
 - Bearer header support for API clients
+
+**Token Refresh Flow:**
+1. Middleware intercepts all page requests (not API routes)
+2. If access token is valid, request continues
+3. If access token expired but refresh token exists, middleware calls `/api/auth/refresh`
+4. New tokens are set in response cookies
+5. User continues without being logged out
 
 **User Resolution** (`app/lib/auth/resolveUser.ts`):
 ```typescript
@@ -44,6 +51,12 @@ export function resolveUser(request: NextRequest): JWTPayload {
   const { userId } = resolveUser(request);
 }
 ```
+Note: `resolveUser` only verifies tokens. Token refresh is handled by middleware for page requests.
+
+**Middleware** (`middleware.ts`):
+- Handles automatic token refresh for page navigation
+- Does NOT run on API routes (excluded in matcher config)
+- Calls `/api/auth/refresh` internally when access token expires
 
 ### API Routes Structure
 Located in `app/api/`. Follows RESTful conventions:

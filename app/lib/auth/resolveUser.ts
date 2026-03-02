@@ -9,17 +9,15 @@ import { NextRequest } from 'next/server';
 import { verifyAccessToken, extractTokenFromHeader, JWTPayload } from './jwt';
 
 export function resolveUser(request: NextRequest): JWTPayload {
-  // 1. Try Authorization header
-  const headerToken = extractTokenFromHeader(request.headers.get('authorization'));
-  if (headerToken) {
-    return verifyAccessToken(headerToken);
+  let token = extractTokenFromHeader(request.headers.get('authorization'));
+  
+  if (!token) {
+    token = request.cookies.get('accessToken')?.value ?? null;
   }
 
-  // 2. Fall back to cookie
-  const cookieToken = request.cookies.get('accessToken')?.value;
-  if (cookieToken) {
-    return verifyAccessToken(cookieToken);
+  if (!token) {
+    throw new Error('Missing authorization token');
   }
 
-  throw new Error('Missing authorization token');
+  return verifyAccessToken(token);
 }
