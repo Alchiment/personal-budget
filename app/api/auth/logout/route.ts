@@ -12,29 +12,39 @@ import { AuthErrorResponseDTO } from '@/app/pages/auth/dtos/auth.dto';
 import { verifyAccessToken, extractTokenFromHeader } from '@/app/lib/auth/jwt';
 
 export async function POST(request: NextRequest) {
+  const response = NextResponse.json({ message: 'Logged out successfully' }, { status: 200 });
+
+  response.cookies.set('accessToken', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 0,
+    sameSite: 'lax',
+  });
+
+  response.cookies.set('refreshToken', '', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    path: '/',
+    maxAge: 0,
+    sameSite: 'lax',
+  });
+
   try {
-    // Extract token from Authorization header
     const token = extractTokenFromHeader(request.headers.get('authorization'));
 
-    if (!token) {
-      return NextResponse.json(
-        new AuthErrorResponseDTO('UNAUTHORIZED', 'Missing authorization token'),
-        { status: 401 }
-      );
+    if (token) {
+      try {
+        const payload = verifyAccessToken(token);
+        const authService = new AuthService(getClient());
+        await authService.logout(payload.userId);
+      } catch {
+        // Token invalid or expired, but we still clear cookies
+      }
     }
 
-    // Verify token and extract user ID
-    const payload = verifyAccessToken(token);
-
-    // Initialize auth service
-    const authService = new AuthService(getClient());
-
-    // Perform logout
-    await authService.logout(payload.userId);
-
-    return NextResponse.json({ message: 'Logged out successfully' }, { status: 200 });
+    return response;
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Logout failed';
-    return NextResponse.json(new AuthErrorResponseDTO('LOGOUT_ERROR', message), { status: 400 });
+    return response;
   }
 }

@@ -1,8 +1,26 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Icon } from '../atoms/Icon';
 import { Button } from '../atoms/Button';
+import { logout } from '@/app/pages/auth/services/authApiService';
 
 export function Navbar() {
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await logout();
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+      router.push('/login');
+    }
+  };
+
   return (
     <nav className="border-b border-slate-200 dark:border-slate-800 bg-card sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -15,6 +33,16 @@ export function Navbar() {
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" className="rounded-full">
             <Icon name="settings" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            title="Logout"
+          >
+            <Icon name="logout" />
           </Button>
           <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center text-white font-bold">
             R
