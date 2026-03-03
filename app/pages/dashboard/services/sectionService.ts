@@ -11,12 +11,14 @@ function toSectionItemDTO(item: {
   name: string;
   amount: number;
   variant: string | null;
+  isPaid: boolean;
 }): SectionItemDTO {
   return {
     id: item.id,
     name: item.name,
     amount: item.amount,
     variant: (item.variant as SectionItemVariantType) ?? 'default',
+    isPaid: item.isPaid ?? false,
   };
 }
 
@@ -29,7 +31,7 @@ function toSectionDTO(row: {
   order: number;
   total: number;
   actionLabel: string | null;
-  items: { id: string; name: string; amount: number; variant: string | null }[];
+  items: { id: string; name: string; amount: number; variant: string | null; isPaid: boolean }[];
 }): SectionDTO {
   return {
     id: row.id,
