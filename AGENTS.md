@@ -9,8 +9,9 @@ Project for managing personal budgets.
 - Locally installation npm pacakges with `npm install`.
 - Run the project with `npm run dev` locally.
 - Build project for production with `npm run build`.
-- Run database migrations with `npx dotenv -e .env.local -- prisma migrate dev --name <migration_name>`.
+- Run database migrations locally with `npx dotenv -e prisma migrate dev .env.local -- --name <migration_name>`.
 - Generate Prisma client with `npx dotenv -e .env.local -- prisma generate`.
+- Run production migrations with `npm run migrate:postgres:prod` (uses `DIRECT_URL` env variable).
 
 ## Backend Architecture
 

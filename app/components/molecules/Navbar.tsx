@@ -7,11 +7,16 @@ import { Button } from '../atoms/Button';
 import { logout } from '@/app/pages/auth/services/authApiService';
 import { AlertBanner } from './AlertBanner';
 import { useAlert } from '@/app/contexts/AlertContext';
+import { useUser } from '@/app/contexts/UserContext';
 
 export function Navbar() {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { alert, clearAlert } = useAlert();
+  const { name, email } = useUser();
+
+  const displayName = name || email.split('@')[0];
+  const initial = displayName.charAt(0).toUpperCase();
 
   const handleLogout = async () => {
     try {
@@ -31,7 +36,7 @@ export function Navbar() {
           <div className="flex items-center gap-3">
             <Icon name="account_balance_wallet" className="text-primary text-3xl" />
             <h1 className="text-xl font-bold tracking-tight">
-              RICHARD <span className="text-slate-400 font-normal">| Finanzas</span>
+              {displayName.toUpperCase()} <span className="text-slate-400 font-normal">| Finanzas</span>
             </h1>
           </div>
           <div className="flex items-center gap-4">
@@ -49,7 +54,7 @@ export function Navbar() {
               <Icon name="logout" />
             </Button>
             <div className="h-8 w-8 bg-primary rounded-full flex items-center justify-center text-white font-bold">
-              R
+              {initial}
             </div>
           </div>
         </div>

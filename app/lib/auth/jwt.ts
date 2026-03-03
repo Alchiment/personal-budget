@@ -9,6 +9,7 @@ import { jwtVerify, type JWTPayload as JoseJWTPayload } from 'jose';
 export interface JWTPayload {
   userId: string;
   email: string;
+  name?: string;
   type: 'access' | 'refresh';
   iat?: number;
   exp?: number;
@@ -23,13 +24,15 @@ const REFRESH_TOKEN_EXPIRY: string | number = process.env.JWT_REFRESH_TOKEN_EXPI
  * Generate a JWT access token
  * @param userId - The user ID
  * @param email - The user email
+ * @param name - The user name (optional)
  * @returns Signed JWT access token
  */
-export function generateAccessToken(userId: string, email: string): string {
+export function generateAccessToken(userId: string, email: string, name?: string): string {
   return jwt.sign(
     {
       userId,
       email,
+      name,
       type: 'access',
     } as JWTPayload,
     JWT_SECRET,
@@ -41,13 +44,15 @@ export function generateAccessToken(userId: string, email: string): string {
  * Generate a JWT refresh token
  * @param userId - The user ID
  * @param email - The user email
+ * @param name - The user name (optional)
  * @returns Signed JWT refresh token
  */
-export function generateRefreshToken(userId: string, email: string): string {
+export function generateRefreshToken(userId: string, email: string, name?: string): string {
   return jwt.sign(
     {
       userId,
       email,
+      name,
       type: 'refresh',
     } as JWTPayload,
     JWT_REFRESH_SECRET,
@@ -59,12 +64,13 @@ export function generateRefreshToken(userId: string, email: string): string {
  * Generate both access and refresh tokens
  * @param userId - The user ID
  * @param email - The user email
+ * @param name - The user name (optional)
  * @returns Object containing both tokens
  */
-export function generateTokenPair(userId: string, email: string): { accessToken: string; refreshToken: string } {
+export function generateTokenPair(userId: string, email: string, name?: string): { accessToken: string; refreshToken: string } {
   return {
-    accessToken: generateAccessToken(userId, email),
-    refreshToken: generateRefreshToken(userId, email),
+    accessToken: generateAccessToken(userId, email, name),
+    refreshToken: generateRefreshToken(userId, email, name),
   };
 }
 

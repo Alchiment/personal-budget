@@ -58,7 +58,7 @@ export class AuthService {
     });
 
     // Generate tokens using the real user.id
-    const { accessToken, refreshToken } = generateTokenPair(user.id, user.email);
+    const { accessToken, refreshToken } = generateTokenPair(user.id, user.email, user.name || undefined);
 
     // Store refresh token on the user record
     await this.prisma.user.update({
@@ -110,7 +110,7 @@ export class AuthService {
     }
 
     // Generate new tokens
-    const { accessToken, refreshToken } = generateTokenPair(user.id, user.email);
+    const { accessToken, refreshToken } = generateTokenPair(user.id, user.email, user.name || undefined);
 
     // Update refresh token and last login in database
     await this.prisma.user.update({
@@ -155,7 +155,7 @@ export class AuthService {
     }
 
     // Generate new token pair
-    const { accessToken, refreshToken: newRefreshToken } = generateTokenPair(user.id, user.email);
+    const { accessToken, refreshToken: newRefreshToken } = generateTokenPair(user.id, user.email, user.name || undefined);
 
     // Update refresh token in database
     await this.prisma.user.update({

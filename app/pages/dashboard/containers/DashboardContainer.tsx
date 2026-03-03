@@ -13,8 +13,12 @@ import { Button } from '@/app/components/atoms/Button';
 import { Icon } from '@/app/components/atoms/Icon';
 import { useDashboardContext } from '../hooks/useDashboardContext';
 import { AlertProvider } from '@/app/contexts/AlertContext';
+import { UserProvider } from '@/app/contexts/UserContext';
+import { Navbar } from '@/app/components/molecules/Navbar';
 
 interface DashboardContainerProps {
+  userName?: string;
+  userEmail: string;
   sectionsData: SectionDTO[];
   summary: SummaryDTO;
   debts: DebtCardDTO[];
@@ -63,16 +67,18 @@ function DashboardContent() {
   );
 }
 
-export function DashboardContainer({ sectionsData, summary, debts }: DashboardContainerProps) {
+export function DashboardContainer({ userName, userEmail, sectionsData, summary, debts }: DashboardContainerProps) {
   return (
     <AlertProvider>
-      <DashboardProvider 
-        initialSections={sectionsData} 
-        initialDebts={debts} 
-        initialSummary={summary}
-      >
-        <DashboardContent />
-      </DashboardProvider>
+      <UserProvider name={userName} email={userEmail}>
+        <DashboardProvider 
+          initialSections={sectionsData} 
+          initialDebts={debts} 
+          initialSummary={summary}
+        >
+          <DashboardContent />
+        </DashboardProvider>
+      </UserProvider>
     </AlertProvider>
   );
 }
