@@ -5,6 +5,7 @@ export interface SectionContextInterface {
   addItem: () => void;
   removeItem: (itemId: string) => void;
   updateItem: (itemId: string, updates: Partial<SectionItemDTO>) => void;
+  resetPaidItems: () => void;
   updateSection: (updates: Partial<SectionDTO>) => void;
   removeSection: (sectionId: string) => void;
   requestRemoveSection: () => void;

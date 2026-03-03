@@ -19,6 +19,7 @@ export interface SectionItemInterface {
   name: string | null;
   amount: number | null;
   variant?: SectionItemVariantType;
+  isPaid?: boolean;
 }
 
 export interface SectionInterface {

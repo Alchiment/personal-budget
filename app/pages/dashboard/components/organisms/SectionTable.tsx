@@ -4,6 +4,7 @@ import { Badge } from '@/app/components/atoms/Badge';
 import { Button } from '@/app/components/atoms/Button';
 import { Icon } from '@/app/components/atoms/Icon';
 import { Input } from '@/app/components/atoms/Input';
+import { Checkbox } from '@/app/components/atoms/Checkbox';
 import { CurrencyInput } from '@/app/components/molecules/CurrencyInput';
 import { SectionHeader } from '@/app/components/molecules/SectionHeader';
 import { SectionDTO, SectionItemDTO } from '../../dtos/dashboard.dto';
@@ -18,10 +19,13 @@ interface SectionTableProps {
   onUpdate?: (itemId: string, updates: Partial<SectionItemDTO>) => void;
   onUpdateSection?: (updates: Partial<SectionDTO>) => void;
   onRemoveSection?: () => void;
+  onResetPaidItems?: () => void;
 }
 
-export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSection, onRemoveSection }: SectionTableProps) {
+export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSection, onRemoveSection, onResetPaidItems }: SectionTableProps) {
   const [isEditing, setIsEditing] = React.useState(false);
+  
+  const hasPaidItems = section.items.some(item => item.isPaid);
   
   const headerAction = (section.action && isEditing) ? { ...section.action, onClick: onAdd } : undefined;
 
@@ -40,6 +44,17 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSecti
       >
         {onUpdate && (
           <>
+            {!isEditing && hasPaidItems && !section.isIncome && onResetPaidItems && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 rounded-full text-slate-400 hover:text-slate-600 transition-colors"
+                onClick={onResetPaidItems}
+                title="Reiniciar pagos"
+              >
+                <Icon name="restart_alt" className="text-sm" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -73,6 +88,7 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSecti
             {/* Render Total Row if it's a summary_list */}
             {section.type === SectionLayoutEnum.SUMMARY_LIST && section.total !== undefined && (
               <tr className="bg-slate-50/50 dark:bg-slate-800/30">
+                <td className="p-4 w-10"></td>
                 <td className="p-4 font-semibold">Total Actual</td>
                 <td className="p-4 text-right">
                   <Badge variant="expense">
@@ -97,7 +113,20 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSecti
                     "group"
                   )}
                 >
-                  <td className={cn("p-4", isExpenseRow && "text-sm")}>
+                  <td className="p-4 w-10">
+                    {!isEditing && onUpdate && !section.isIncome && (
+                      <Checkbox
+                        checked={item.isPaid ?? false}
+                        onChange={(e) => onUpdate(item.id, { isPaid: e.target.checked })}
+                        title="Marcar como pagado"
+                      />
+                    )}
+                  </td>
+                  <td className={cn(
+                    "p-4", 
+                    isExpenseRow && "text-sm",
+                    item.isPaid && !section.isIncome && "line-through text-slate-400"
+                  )}>
                     {isEditing && onUpdate ? (
                       <Input 
                         value={item.name ?? ''} 
@@ -109,7 +138,11 @@ export function SectionTable({ section, onAdd, onRemove, onUpdate, onUpdateSecti
                       item.name
                     )}
                   </td>
-                  <td className={cn("p-4 text-right", isExpenseRow && "font-mono text-sm")}>
+                  <td className={cn(
+                    "p-4 text-right", 
+                    isExpenseRow && "font-mono text-sm",
+                    item.isPaid && !section.isIncome && "line-through text-slate-400"
+                  )}>
                     {isEditing && onUpdate ? (
                       <div className="flex justify-end">
                         <CurrencyInput 

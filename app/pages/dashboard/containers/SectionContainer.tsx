@@ -5,7 +5,7 @@ import { SectionTable } from '../components/organisms/SectionTable';
 import { useSectionContext } from '../hooks/useSectionContext';
 
 export function SectionContainer() {
-  const { section, addItem, removeItem, updateItem, updateSection, requestRemoveSection } = useSectionContext();
+  const { section, addItem, removeItem, updateItem, updateSection, requestRemoveSection, resetPaidItems } = useSectionContext();
 
   return (
     <SectionTable 
@@ -15,6 +15,7 @@ export function SectionContainer() {
       onUpdate={updateItem}
       onUpdateSection={updateSection}
       onRemoveSection={requestRemoveSection}
+      onResetPaidItems={resetPaidItems}
     />
   );
 }

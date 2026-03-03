@@ -94,6 +94,14 @@ export function DashboardProvider({
     ));
   }, []);
 
+  const resetSectionItems = useCallback((sectionId: string) => {
+    setSections(prev => prev.map(s =>
+      s.id === sectionId
+        ? { ...s, items: s.items.map(item => ({ ...item, isPaid: false })) }
+        : s
+    ));
+  }, []);
+
   const addSection = useCallback(() => {
     const tmpId = createTmpId();
     const maxOrder = sections.length > 0 ? Math.max(...sections.map(s => s.order)) : -1;
@@ -252,6 +260,7 @@ export function DashboardProvider({
       addSectionItem,
       removeSectionItem,
       updateSectionItem,
+      resetSectionItems,
       addDebtDetail,
       removeDebtDetail,
       updateDebtDetail,

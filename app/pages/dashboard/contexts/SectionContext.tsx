@@ -11,7 +11,7 @@ import { SectionLayoutEnum } from '../enums/SectionLayoutEnum';
 export const SectionContext = createContext<SectionContextInterface | undefined>(undefined);
 
 export function SectionProvider({ children, sectionId }: SectionProviderProps) {
-  const { sections, addSectionItem, removeSectionItem, updateSectionItem, updateSection, removeSection, requestRemoveSection } = useDashboardContext();
+  const { sections, addSectionItem, removeSectionItem, updateSectionItem, resetSectionItems, updateSection, removeSection, requestRemoveSection } = useDashboardContext();
 
   const section = useMemo(() => 
     sections.find(s => s.id === sectionId), 
@@ -35,12 +35,13 @@ export function SectionProvider({ children, sectionId }: SectionProviderProps) {
       addItem: () => addSectionItem(sectionId),
       removeItem: (itemId: string) => removeSectionItem(sectionId, itemId),
       updateItem: (itemId: string, updates: Partial<SectionItemDTO>) => updateSectionItem(sectionId, itemId, updates),
+      resetPaidItems: () => resetSectionItems(sectionId),
       updateSection: (updates: Partial<SectionDTO>) => updateSection(sectionId, updates),
       removeSection: () => removeSection(sectionId),
       requestRemoveSection: () => requestRemoveSection(sectionId),
       total
     };
-  }, [section, sectionId, addSectionItem, removeSectionItem, updateSectionItem, updateSection, removeSection, requestRemoveSection]);
+  }, [section, sectionId, addSectionItem, removeSectionItem, updateSectionItem, resetSectionItems, updateSection, removeSection, requestRemoveSection]);
 
   if (!section || !contextValue) {
     // Or return null, or render children with null context?

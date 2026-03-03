@@ -15,7 +15,7 @@ function toSectionDTO(row: {
   order: number;
   total: number;
   actionLabel: string | null;
-  items: { id: string; name: string; amount: number; variant: string | null }[];
+  items: { id: string; name: string; amount: number; variant: string | null; isPaid: boolean }[];
 }): SectionDTO {
   return {
     id: row.id,
@@ -31,6 +31,7 @@ function toSectionDTO(row: {
       name: item.name,
       amount: item.amount,
       variant: (item.variant as SectionItemVariantType) ?? 'default',
+      isPaid: item.isPaid ?? false,
     })),
   };
 }
@@ -72,6 +73,7 @@ async function syncSectionItem(
         name: item.name ?? '',
         amount: item.amount ?? 0,
         variant: item.variant ?? 'default',
+        isPaid: item.isPaid ?? false,
         sectionId,
       },
     });
@@ -80,6 +82,7 @@ async function syncSectionItem(
       name: row.name,
       amount: row.amount,
       variant: (row.variant as SectionItemVariantType) ?? 'default',
+      isPaid: row.isPaid ?? false,
     };
   }
 
@@ -89,6 +92,7 @@ async function syncSectionItem(
       name: item.name ?? '',
       amount: item.amount ?? 0,
       variant: item.variant,
+      isPaid: item.isPaid ?? false,
     },
   });
   return {
@@ -96,6 +100,7 @@ async function syncSectionItem(
     name: row.name,
     amount: row.amount,
     variant: (row.variant as SectionItemVariantType) ?? 'default',
+    isPaid: row.isPaid ?? false,
   };
 }
 

@@ -105,6 +105,9 @@ model SectionItem {
   /// Visual variant for display (income, expense, neutral, default)
   variant String?
 
+  /// Whether this item has been paid
+  isPaid Boolean @default(false)
+
   /// Related section
   sectionId String
   section   Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
