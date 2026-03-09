@@ -3,6 +3,7 @@ import { Card } from '@/app/components/atoms/Card';
 import { Button } from '@/app/components/atoms/Button';
 import { Icon } from '@/app/components/atoms/Icon';
 import { Input } from '@/app/components/atoms/Input';
+import { Checkbox } from '@/app/components/atoms/Checkbox';
 import { CurrencyInput } from '@/app/components/molecules/CurrencyInput';
 import { DebtCardDTO, DebtItemDTO } from '../../dtos/dashboard.dto';
 import { formatCurrency } from '@/app/lib/format';
@@ -42,34 +43,45 @@ export function DebtCard({
       <div className="p-4">
         {/* Header Section */}
         <div className="flex justify-between items-center">
-          <div className="space-y-1 flex-1 mr-4">
-            {isEditing && onUpdateDebt ? (
-              <>
-                  <Input 
-                      value={debt.name ?? ''} 
-                      onChange={(e) => onUpdateDebt(debt.id, { name: e.target.value })}
-                      className="font-medium h-7 w-full"
-                      placeholder="Nombre Tarjeta"
-                  />
-                  <Input 
-                      value={debt.subtitle ?? ''} 
-                      onChange={(e) => onUpdateDebt(debt.id, { subtitle: e.target.value })}
-                      className="text-xs text-slate-500 h-6 w-full"
-                      placeholder="Subtítulo"
-                  />
-              </>
-            ) : (
-              <>
-                  <h3 className="font-medium">{debt.name}</h3>
-                  <p className="text-xs text-slate-500">{debt.subtitle}</p>
-              </>
+          <div className="flex items-start gap-3 flex-1 mr-4">
+            {!isEditing && onUpdateDebt && (
+              <Checkbox
+                checked={debt.isPaid ?? false}
+                onChange={(e) => onUpdateDebt(debt.id, { isPaid: e.target.checked })}
+                title="Marcar como pagado"
+                className="mt-1"
+              />
             )}
+            <div className="space-y-1 flex-1">
+              {isEditing && onUpdateDebt ? (
+                <>
+                    <Input 
+                        value={debt.name ?? ''} 
+                        onChange={(e) => onUpdateDebt(debt.id, { name: e.target.value })}
+                        className="font-medium h-7 w-full"
+                        placeholder="Nombre Tarjeta"
+                    />
+                    <Input 
+                        value={debt.subtitle ?? ''} 
+                        onChange={(e) => onUpdateDebt(debt.id, { subtitle: e.target.value })}
+                        className="text-xs text-slate-500 h-6 w-full"
+                        placeholder="Subtítulo"
+                    />
+                </>
+              ) : (
+                <>
+                    <h3 className={cn("font-medium", debt.isPaid && "line-through text-slate-400")}>{debt.name}</h3>
+                    <p className={cn("text-xs text-slate-500", debt.isPaid && "line-through")}>{debt.subtitle}</p>
+                </>
+              )}
+            </div>
           </div>
           
           <div className="text-right">
              <span className={cn(
                "font-mono font-bold block", 
-               debt.amount === 0 ? "text-slate-400" : "text-red-500"
+               debt.amount === 0 ? "text-slate-400" : "text-red-500",
+               debt.isPaid && "line-through text-slate-400"
              )}>
                {formatCurrency((debt.amount ?? 0))}
              </span>

@@ -50,6 +50,7 @@ export interface DebtCardInterface {
   amount: number;
   type: DebtCardType;
   color: DebtColorType;
+  isPaid?: boolean;
   order: number;
   details?: DebtItemInterface[];
 }

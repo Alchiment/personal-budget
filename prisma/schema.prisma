@@ -141,6 +141,9 @@ model Debt {
   /// Visual color hint (purple, blue)
   color String @default("blue")
 
+  /// Whether this debt has been paid
+  isPaid Boolean @default(false)
+
   /// Display order
   order Int
 

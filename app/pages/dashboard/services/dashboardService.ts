@@ -43,6 +43,7 @@ function toDebtCardDTO(row: {
   amount: number;
   type: string;
   color: string;
+  isPaid: boolean;
   order: number;
   details: { id: string; name: string; amount: number }[];
 }): DebtCardDTO {
@@ -53,6 +54,7 @@ function toDebtCardDTO(row: {
     amount: row.amount,
     type: row.type as DebtCardType,
     color: row.color as DebtColorType,
+    isPaid: row.isPaid ?? false,
     order: row.order,
     details: row.details.map((detail) => ({
       id: detail.id,
@@ -213,6 +215,7 @@ async function syncDebt(
         subtitle: debt.subtitle,
         type: debt.type ?? 'credit_card',
         color: debt.color ?? 'blue',
+        isPaid: debt.isPaid ?? false,
         order: debt.order ?? (maxOrder._max.order ?? -1) + 1,
         userId,
       },
@@ -226,6 +229,7 @@ async function syncDebt(
         name: debt.name,
         subtitle: debt.subtitle,
         color: debt.color,
+        isPaid: debt.isPaid ?? false,
       },
       include: { details: true },
     });
