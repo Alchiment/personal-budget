@@ -255,7 +255,10 @@ async function syncDebt(
   const total = syncedDetails.reduce((sum, d) => sum + d.amount, 0);
   const updatedDebt = await db.debt.update({
     where: { id: persistedDebt.id },
-    data: { amount: total },
+    data: { 
+      amount: total,
+      isPaid: debt.isPaid ?? false,
+    },
     include: { details: true },
   });
 
